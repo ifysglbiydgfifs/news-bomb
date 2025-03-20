@@ -13,15 +13,25 @@ function App() {
 
     useEffect(() => {
         const handleScroll = () => {
-            const scrollPosition = window.scrollY + window.innerHeight / 2; // Позиция прокрутки
+            const scrollPosition = window.scrollY + window.innerHeight; // Позиция прокрутки (с учетом всей видимой области)
 
-            // Определяем активный пост на основе текущей прокрутки
+            let foundActivePost = false;
+
+            // Проверяем каждый пост на видимость
             postsRef.current.forEach((postElement, index) => {
                 const rect = postElement.getBoundingClientRect();
-                if (rect.top <= scrollPosition && rect.bottom >= scrollPosition) {
-                    setActivePostId(posts[index].id); // Устанавливаем активный пост
+                if (rect.top < window.innerHeight && rect.bottom > 0) {
+                    if (!foundActivePost) {
+                        setActivePostId(posts[index].id); // Устанавливаем первый видимый пост как активный
+                        foundActivePost = true;
+                    }
                 }
             });
+
+            // Если все посты находятся вне области видимости, сбрасываем активность
+            if (!foundActivePost) {
+                setActivePostId(null);
+            }
         };
 
         window.addEventListener('scroll', handleScroll);
