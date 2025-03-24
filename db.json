@@ -4,7 +4,7 @@
       "id": 1,
       "title": "News 1",
       "summary": "Perks can be rerolled using the 'perk reroll' structure - resembling a set of weighing scales - located at the exit of the Holy Mountain. This replaces any perks on the altar with a new draw from the pool.\n\nThe perk reroll initially costs 200  and will double in price every time it is used (200 , 400 , 800 , and so on). Rerolling only affects perks that are currently on the altar and will not spawn new perks if a perk has already been taken. Rerolling will pull from the entire pool of perks, allowing for the possibility of collecting multiple instances of the same perk, aka perk stacking.\n\nRerolling will not affect the price of previously visited holy mountains; rerolling once raises the price from 200  to 400 , but the price of all previously visited holy mountains remains 200 . For example:\n\nPlayer has visited two holy mountains (A and B) without claiming a perk. Both holy mountains start at a reroll cost of 200 .\nPlayer then rerolls perks in B for 200  (cost in B goes up to 400 ).\nPlayer then goes back to A and is able to reroll for 200  (cost in A goes up to 800 , but the cost in B remains at 400 ).\nThere are various complexities to the local economy, including that it is only possible for you to possess 2.15 billion gold (for a max of 23 rerolls). However, there are also ways to break the reroll machine...\n\n",
-      "time": "2025-03-21T01:00:00Z"
+      "time": "2025-03-20T01:00:00Z"
     },
     {
       "id": 2,
@@ -129,19 +129,19 @@
       "id": 22,
       "title": "News 22",
       "summary": "Brief summary of the news 22",
-      "time": "2025-03-21T22:00:00Z"
+      "time": "2025-03-22T22:00:00Z"
     },
     {
       "id": 23,
       "title": "News 23",
       "summary": "Brief summary of the news 23",
-      "time": "2025-03-21T23:00:00Z"
+      "time": "2025-03-23T23:00:00Z"
     },
     {
       "id": 24,
       "title": "News 24",
       "summary": "Brief summary of the news 24",
-      "time": "2025-03-21T24:00:00Z"
+      "time": "2025-03-24T24:00:00Z"
     }
   ]
 }
