@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { CustomTooltip } from './CustomTooltip';
 
@@ -9,7 +9,6 @@ const Chart = ({ posts }) => {
     }, {});
 
     const lines = [];
-    const pointColors = {};
 
     posts.forEach(post => {
         if (post.lineTo.length > 0) {
@@ -25,12 +24,7 @@ const Chart = ({ posts }) => {
         }
     });
 
-    const getColorForPost = (postId) => {
-        if (!pointColors[postId]) {
-            pointColors[postId] = `#${(Math.random() * 0xFFFFFF << 0).toString(16)}`;
-        }
-        return pointColors[postId];
-    };
+    const lineColor = useMemo(() => `#${Math.floor(Math.random() * 0xFFFFFF).toString(16).padStart(6, '0')}`, []);
 
     return (
         <ResponsiveContainer width="100%" height={400}>
@@ -63,7 +57,7 @@ const Chart = ({ posts }) => {
                             { time: line.to.time, id: line.to.id, title: line.to.title, summary: line.to.summary, timeText: line.to.time }
                         ]}
                         dataKey="id"
-                        stroke={getColorForPost(line.from.id)}
+                        stroke={lineColor}
                         dot={{ r: 5 }}
                         activeDot={{ r: 8 }}
                         isAnimationActive={false}
