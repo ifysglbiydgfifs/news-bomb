@@ -16,11 +16,13 @@ function App() {
                 const formattedPosts = data.map((post) => ({
                     ...post,
                     time: new Date(post.time).getTime(),
+                    lineTo: post.lineTo ? post.lineTo.split(',').map(Number) : [],
                 }));
                 setPosts(formattedPosts);
                 setFilteredPosts(formattedPosts);
             });
     }, []);
+
 
     const handleSearch = (e) => {
         setSearchQuery(e.target.value);
