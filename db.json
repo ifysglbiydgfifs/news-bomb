@@ -4,7 +4,7 @@
       "id": 17,
       "title": "News 11",
       "summary": "Brief summary of the news 11",
-      "time": "2025-03-21T11:00:00Z",
+      "time": "2025-03-20T11:00:00Z",
       "lineTo": "12,13"
     },
     {
@@ -12,7 +12,7 @@
       "title": "News 12",
       "summary": "Brief summary of the news 12",
       "time": "2025-03-21T12:00:00Z",
-      "lineTo": "13"
+      "lineTo": "13, 22"
     },
     {
       "id": 13,
@@ -40,6 +40,13 @@
       "title": "News 16",
       "summary": "Brief summary of the news 16",
       "time": "2025-03-21T16:00:00Z",
+      "lineTo": "22"
+    },
+    {
+      "id": 22,
+      "title": "News 22",
+      "summary": "Brief summary of the news 22",
+      "time": "2025-03-22T17:00:00Z",
       "lineTo": null
     }
   ]
