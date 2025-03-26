@@ -1,70 +1,78 @@
 import React, { useMemo } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { CustomTooltip } from './CustomTooltip';
+import { CustomTooltip } from './utils/CustomTooltip';
 
-const Chart = ({ posts }) => {
+const Chart = ({ posts, spokenPosts, highlightedLines }) => {
     const postMap = posts.reduce((map, post) => {
         map[post.id] = post;
         return map;
     }, {});
 
-    const lines = [];
-
-    posts.forEach(post => {
-        if (post.lineTo.length > 0) {
-            post.lineTo.forEach(targetId => {
-                const targetPost = postMap[targetId];
-                if (targetPost) {
-                    lines.push({
-                        from: post,
-                        to: targetPost,
-                    });
-                }
-            });
-        }
-    });
+    const lines = posts.reduce((acc, post) => {
+        post.lineTo.forEach(targetId => {
+            const targetPost = postMap[targetId];
+            if (targetPost) {
+                acc.push({ from: post, to: targetPost });
+            }
+        });
+        return acc;
+    }, []);
 
     const lineColor = useMemo(() => `#${Math.floor(Math.random() * 0xFFFFFF).toString(16).padStart(6, '0')}`, []);
 
     return (
-        <ResponsiveContainer width="100%" height={400}>
-            <LineChart data={posts}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis
-                    dataKey="time"
-                    type="number"
-                    domain={['auto', 'auto']}
-                    tickFormatter={(time) =>
-                        `${new Date(time).toLocaleDateString()} ${new Date(time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
-                    }
-                    label={{ value: "Дата и Время", position: "insideBottom", offset: -5 }}
-                    ticks={posts.map(post => post.time)}
-                />
-                <YAxis
-                    type="number"
-                    dataKey="id"
-                    tick={false}
-                    label={{ value: "", angle: -90, position: 'insideLeft' }}
-                />
-                <Tooltip content={<CustomTooltip />} />
-
-                {lines.map((line, index) => (
-                    <Line
-                        key={index}
-                        type="monotone"
-                        data={[
-                            { time: line.from.time, id: line.from.id, title: line.from.title, summary: line.from.summary, timeText: line.from.time },
-                            { time: line.to.time, id: line.to.id, title: line.to.title, summary: line.to.summary, timeText: line.to.time }
-                        ]}
-                        dataKey="id"
-                        stroke={lineColor}
-                        dot={{ r: 5 }}
-                        activeDot={{ r: 8 }}
-                        isAnimationActive={false}
+        <div className="w-full">
+            <ResponsiveContainer width="100%" height={400}>
+                <LineChart data={posts}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis
+                        dataKey="time"
+                        type="number"
+                        domain={['auto', 'auto']}
+                        tickFormatter={(time) =>
+                            `${new Date(time).toLocaleDateString()} ${new Date(time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
+                        }
+                        label={{ value: "Дата и Время", position: "insideBottom", offset: -5 }}
+                        ticks={posts.map(post => post.time)}
                     />
-                ))}
-            </LineChart>
-        </ResponsiveContainer>
+                    <YAxis hide={true} />
+                    {/* Убираем стандартный tooltip и используем только CustomTooltip */}
+                    <Tooltip content={<CustomTooltip />} cursor={false} />
+
+                    {lines.map((line, index) => {
+                        const isHighlighted = highlightedLines.has(`${line.from.id}-${line.to.id}`);
+                        return (
+                            <Line
+                                key={index}
+                                type="monotone"
+                                data={[
+                                    { time: line.from.time, id: line.from.id },
+                                    { time: line.to.time, id: line.to.id }
+                                ]}
+                                dataKey="id"
+                                stroke={lineColor}
+                                strokeWidth={isHighlighted ? 4 : 2}
+                                dot={false}
+                                activeDot={false}
+                                isAnimationActive={false}
+                            />
+                        );
+                    })}
+
+                    {posts.map((post) => (
+                        <Line
+                            key={post.id}
+                            type="monotone"
+                            data={[post]}
+                            dataKey="id"
+                            stroke="transparent"
+                            dot={{ r: spokenPosts.has(post.id) ? 10 : 5, fill: lineColor }}
+                            activeDot={{ r: spokenPosts.has(post.id) ? 10 : 5 }}
+                        />
+                    ))}
+                </LineChart>
+            </ResponsiveContainer>
+        </div>
     );
 };
 

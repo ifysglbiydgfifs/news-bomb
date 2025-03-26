@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import Chart from '../Chart';
-import Header from '../components/Header';
-import PostFilter from '../PostFilter';
-
+import RouteMenu from '../components/RouteMenu';
+import PostFilter from '../utils/PostFilter';
+import { speakPosts, highlightConnections } from '../utils/BFS';
 
 const Home = () => {
     const [posts, setPosts] = useState([]);
@@ -10,6 +10,9 @@ const Home = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
+    const [isSpeaking, setIsSpeaking] = useState(false);
+    const [spokenPosts, setSpokenPosts] = useState(new Set());
+    const [highlightedLines, setHighlightedLines] = useState(new Set());
 
     useEffect(() => {
         fetch('http://localhost:3001/posts')
@@ -36,9 +39,26 @@ const Home = () => {
         setFilteredPosts(filtered);
     };
 
+    const handleSpeakPosts = () => {
+        if (!isSpeaking) {
+            setIsSpeaking(true);
+            speakPosts(filteredPosts, setSpokenPosts, setHighlightedLines);
+        }
+    };
+
+    useEffect(() => {
+        const highlighted = highlightConnections(filteredPosts, spokenPosts);
+        setHighlightedLines(highlighted);
+    }, [spokenPosts, filteredPosts]);
+
     return (
         <div className="min-h-screen bg-gray-100 flex flex-col justify-center items-center p-4">
-            <Header
+            <Chart
+                posts={filteredPosts}
+                spokenPosts={spokenPosts}
+                highlightedLines={highlightedLines}
+            />
+            <RouteMenu
                 searchQuery={searchQuery}
                 handleSearch={handleSearch}
                 startDate={startDate}
@@ -46,8 +66,9 @@ const Home = () => {
                 handleFilter={handleFilter}
                 setStartDate={setStartDate}
                 setEndDate={setEndDate}
+                handleSpeakPosts={handleSpeakPosts}
+                isSpeaking={isSpeaking}
             />
-            <Chart posts={filteredPosts} />
         </div>
     );
 };
