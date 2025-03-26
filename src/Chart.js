@@ -36,19 +36,20 @@ const Chart = ({ posts, spokenPosts, highlightedLines }) => {
                         ticks={posts.map(post => post.time)}
                     />
                     <YAxis hide={true} />
-                    {/* Убираем стандартный tooltip и используем только CustomTooltip */}
-                    <Tooltip content={<CustomTooltip />} cursor={false} />
+                    <Tooltip content={<CustomTooltip />}/>
 
                     {lines.map((line, index) => {
                         const isHighlighted = highlightedLines.has(`${line.from.id}-${line.to.id}`);
+                        const lineData = [
+                            { ...line.from, time: line.from.time, id: line.from.id },
+                            { ...line.to, time: line.to.time, id: line.to.id }
+                        ];
+
                         return (
                             <Line
                                 key={index}
                                 type="monotone"
-                                data={[
-                                    { time: line.from.time, id: line.from.id },
-                                    { time: line.to.time, id: line.to.id }
-                                ]}
+                                data={lineData}
                                 dataKey="id"
                                 stroke={lineColor}
                                 strokeWidth={isHighlighted ? 4 : 2}
