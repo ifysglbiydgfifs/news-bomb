@@ -68,7 +68,7 @@ const Chart = ({ posts, spokenPosts, highlightedLines }) => {
                             dataKey="id"
                             stroke="transparent"
                             dot={{ r: spokenPosts.has(post.id) ? 10 : 5, fill: lineColor }}
-                            activeDot={{ r: spokenPosts.has(post.id) ? 10 : 5 }}
+                            activeDot={false}
                         />
                     ))}
                 </LineChart>

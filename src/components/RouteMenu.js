@@ -46,6 +46,7 @@ const RouteMenu = ({
                 <button
                     onClick={handleSpeakPosts}
                     disabled={isSpeaking}
+                    aria-label={isSpeaking ? 'Stop speaking posts' : 'Start speaking posts'}
                     className={`p-2 rounded w-full sm:w-auto ${isSpeaking ? 'bg-gray-400' : 'bg-blue-500 text-white'}`}
                 >
                     {isSpeaking ? 'Speaking...' : 'Start Speaking'}

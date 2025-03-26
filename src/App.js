@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Home from './pages/Home';
+import LikedPosts from "./pages/LikedPosts";
 
 const App = () => {
     return (
@@ -12,8 +13,7 @@ const App = () => {
                 <main className="flex-grow">
                     <Routes>
                         <Route path="/" element={<Home />} />
-                        {/*demo*/}
-                        {/*settings*/}
+                        <Route path="/saved" element={<LikedPosts />} />
                     </Routes>
                 </main>
                 <Footer />

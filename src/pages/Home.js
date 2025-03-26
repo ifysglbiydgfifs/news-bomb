@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
 import Chart from '../Chart';
 import RouteMenu from '../components/RouteMenu';
 import PostFilter from '../utils/PostFilter';
@@ -25,26 +25,29 @@ const Home = () => {
                 }));
                 setPosts(formattedPosts);
                 setFilteredPosts(formattedPosts);
+            })
+            .catch((error) => {
+                console.error('Error fetching posts:', error);
             });
     }, []);
 
-    const handleSearch = (e) => {
+    const handleSearch = useCallback((e) => {
         setSearchQuery(e.target.value);
         const filtered = PostFilter.applyFilters(posts, e.target.value, startDate, endDate);
         setFilteredPosts(filtered);
-    };
+    }, [posts, startDate, endDate]);
 
-    const handleFilter = () => {
+    const handleFilter = useCallback(() => {
         const filtered = PostFilter.applyFilters(posts, searchQuery, startDate, endDate);
         setFilteredPosts(filtered);
-    };
+    }, [posts, searchQuery, startDate, endDate]);
 
-    const handleSpeakPosts = () => {
+    const handleSpeakPosts = useCallback(() => {
         if (!isSpeaking) {
             setIsSpeaking(true);
             speakPosts(filteredPosts, setSpokenPosts, setHighlightedLines);
         }
-    };
+    }, [isSpeaking, filteredPosts]);
 
     useEffect(() => {
         const highlighted = highlightConnections(filteredPosts, spokenPosts);
