@@ -3,7 +3,7 @@ import React from 'react';
 export const CustomTooltip = ({ payload }) => {
     if (payload && payload.length > 0) {
         const post = payload[0].payload;
-        const isFavorite = post.isFavorite;
+        const isFavorite = post.isFavorite; // Берем актуальный статус из данных поста
 
         return (
             <div className="custom-tooltip p-2 bg-white border rounded shadow">

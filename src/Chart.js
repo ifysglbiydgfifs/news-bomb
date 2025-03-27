@@ -1,71 +1,46 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { CustomTooltip } from './utils/CustomTooltip';
+import FavoriteService from './utils/FavoriteService';
 
 const Chart = ({ posts, spokenPosts, highlightedLines }) => {
     const [favorites, setFavorites] = useState([]);
 
     useEffect(() => {
-        fetch('http://localhost:3001/favorites')
-            .then((response) => response.json())
-            .then((data) => {
-                setFavorites(data);
-            })
-            .catch((error) => {
-                console.error("Error fetching favorite posts:", error);
-            });
+        FavoriteService.getFavorites().then(setFavorites).catch(console.error);
     }, []);
 
     const toggleFavorite = (post) => {
-        console.log('Toggling favorite for post:', post);
         const isFavorite = favorites.some(favPost => favPost.id === post.id);
         if (isFavorite) {
-            setFavorites(favorites.filter(favPost => favPost.id !== post.id));
-            fetch('http://localhost:3001/favorites', {
-                method: 'DELETE',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id: post.id }),
-            })
-                .then(response => {
-                    if (!response.ok) {
-                        console.error(`Failed to delete post with id ${post.id}`);
-                    } else {
-                        console.log(`Post with id ${post.id} successfully deleted`);
-                    }
-                })
-                .catch((err) => console.error('Error removing from favorites:', err));
+            FavoriteService.removeFavorite(post.id).then(() => {
+                setFavorites(favorites.filter(favPost => favPost.id !== post.id));
+            }).catch(console.error);
         } else {
-            setFavorites([...favorites, post]);
-            fetch('http://localhost:3001/favorites', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(post),
-            })
-                .then(response => {
-                    if (!response.ok) {
-                        console.error('Failed to add post to favorites');
-                    } else {
-                        console.log('Post added to favorites');
-                    }
-                })
-                .catch((err) => console.error('Error adding to favorites:', err));
+            FavoriteService.addFavorite(post).then(() => {
+                setFavorites([...favorites, post]);
+            }).catch(console.error);
         }
     };
 
-    const postMap = posts.reduce((map, post) => {
-        map[post.id] = post;
-        return map;
-    }, {});
+    const postMap = useMemo(() => {
+        return posts.map(post => ({
+            ...post,
+            isFavorite: favorites.some(favPost => favPost.id === post.id),
+        }));
+    }, [posts, favorites]);
 
-    const lines = posts.reduce((acc, post) => {
-        post.lineTo.forEach(targetId => {
-            const targetPost = postMap[targetId];
-            if (targetPost) {
-                acc.push({ from: post, to: targetPost });
-            }
-        });
-        return acc;
-    }, []);
+    const lines = useMemo(() => {
+        return postMap.reduce((acc, post) => {
+            post.lineTo.forEach(targetId => {
+                const targetPost = postMap.find(p => p.id === targetId);
+                if (targetPost) {
+                    acc.push({ from: post, to: targetPost });
+                }
+            });
+            return acc;
+        }, []);
+    }, [postMap]);
 
     const lineColor = useMemo(() => `#${Math.floor(Math.random() * 0xFFFFFF).toString(16).padStart(6, '0')}`, []);
 
@@ -121,9 +96,16 @@ const Chart = ({ posts, spokenPosts, highlightedLines }) => {
                                 dot={{
                                     r: spokenPosts.has(post.id) ? 10 : 5,
                                     fill: isFavorite ? 'gold' : lineColor,
+                                    stroke: 'blue',
+                                    strokeWidth: 2,
                                     onClick: () => toggleFavorite(post)
                                 }}
-                                activeDot={true}
+                                activeDot={{
+                                r: 10,
+                                fill: isFavorite ? 'gold' : lineColor,
+                                stroke: 'blue',
+                                strokeWidth: 2,
+                                }}
                             />
                         );
                     })}

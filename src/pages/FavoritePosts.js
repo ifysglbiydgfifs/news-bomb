@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import FavoriteService from '../utils/FavoriteService';
 
 const FavoritePosts = () => {
     const [favorites, setFavorites] = useState([]);
@@ -6,30 +7,14 @@ const FavoritePosts = () => {
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        fetchFavorites();
+        FavoriteService.getFavorites()
+            .then(setFavorites)
+            .catch(() => setError('Error fetching favorite posts'))
+            .finally(() => setLoading(false));
     }, []);
 
-    const fetchFavorites = () => {
-        setLoading(true);
-        fetch('http://localhost:3001/favorites')
-            .then((response) => response.json())
-            .then((data) => {
-                setFavorites(data);
-                setLoading(false);
-            })
-            .catch((err) => {
-                setError('Error fetching favorite posts');
-                setLoading(false);
-            });
-    };
-
-    if (loading) {
-        return <p>Loading favorites...</p>;
-    }
-
-    if (error) {
-        return <p>{error}</p>;
-    }
+    if (loading) return <p>Loading favorites...</p>;
+    if (error) return <p>{error}</p>;
 
     return (
         <div className="min-h-screen bg-gray-100 flex flex-col justify-center items-center p-4">
@@ -39,9 +24,7 @@ const FavoritePosts = () => {
                         <div key={post.id} className="p-4 bg-white shadow-lg rounded-lg">
                             <h2 className="text-xl font-bold mb-2">{post.title}</h2>
                             <p className="text-sm">{post.summary}</p>
-                            <p className="text-xs text-gray-500">
-                                {new Date(post.time).toLocaleString()}
-                            </p>
+                            <p className="text-xs text-gray-500">{new Date(post.time).toLocaleString()}</p>
                         </div>
                     ))}
                 </div>
