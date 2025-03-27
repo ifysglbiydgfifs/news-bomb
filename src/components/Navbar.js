@@ -7,7 +7,7 @@ const Navbar = () => {
             <div className="container mx-auto">
                 <ul className="flex space-x-4">
                     <li><Link to="/" className="hover:text-blue-400">Home</Link></li>
-                    <li><Link to="/demo" className="hover:text-blue-400">Demo</Link></li>
+                    <li><Link to="/favorites" className="hover:text-blue-400">Favorites</Link></li>
                     <li><Link to="/settings" className="hover:text-blue-400">Settings</Link></li>
                 </ul>
             </div>

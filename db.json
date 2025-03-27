@@ -49,5 +49,32 @@
       "time": "2025-03-22T17:00:00Z",
       "lineTo": null
     }
+  ],
+  "favorites": [
+    {
+      "id": 18,
+      "title": "News 16",
+      "summary": "Brief summary of the news 16",
+      "time": 1742572800000,
+      "lineTo": [
+        22
+      ]
+    },
+    {
+      "id": 22,
+      "title": "News 22",
+      "summary": "Brief summary of the news 22",
+      "time": 1742662800000,
+      "lineTo": []
+    },
+    {
+      "id": 24,
+      "title": "News 14",
+      "summary": "Brief summary of the news 14",
+      "time": 1742565600000,
+      "lineTo": [
+        18
+      ]
+    }
   ]
 }

@@ -1,8 +1,57 @@
-import React, { useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { CustomTooltip } from './utils/CustomTooltip';
 
 const Chart = ({ posts, spokenPosts, highlightedLines }) => {
+    const [favorites, setFavorites] = useState([]);
+
+    useEffect(() => {
+        fetch('http://localhost:3001/favorites')
+            .then((response) => response.json())
+            .then((data) => {
+                setFavorites(data);
+            })
+            .catch((error) => {
+                console.error("Error fetching favorite posts:", error);
+            });
+    }, []);
+
+    const toggleFavorite = (post) => {
+        console.log('Toggling favorite for post:', post);
+        const isFavorite = favorites.some(favPost => favPost.id === post.id);
+        if (isFavorite) {
+            setFavorites(favorites.filter(favPost => favPost.id !== post.id));
+            fetch('http://localhost:3001/favorites', {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: post.id }),
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        console.error(`Failed to delete post with id ${post.id}`);
+                    } else {
+                        console.log(`Post with id ${post.id} successfully deleted`);
+                    }
+                })
+                .catch((err) => console.error('Error removing from favorites:', err));
+        } else {
+            setFavorites([...favorites, post]);
+            fetch('http://localhost:3001/favorites', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(post),
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        console.error('Failed to add post to favorites');
+                    } else {
+                        console.log('Post added to favorites');
+                    }
+                })
+                .catch((err) => console.error('Error adding to favorites:', err));
+        }
+    };
+
     const postMap = posts.reduce((map, post) => {
         map[post.id] = post;
         return map;
@@ -60,17 +109,24 @@ const Chart = ({ posts, spokenPosts, highlightedLines }) => {
                         );
                     })}
 
-                    {posts.map((post) => (
-                        <Line
-                            key={post.id}
-                            type="monotone"
-                            data={[post]}
-                            dataKey="id"
-                            stroke="transparent"
-                            dot={{ r: spokenPosts.has(post.id) ? 10 : 5, fill: lineColor }}
-                            activeDot={false}
-                        />
-                    ))}
+                    {posts.map((post) => {
+                        const isFavorite = favorites.some(favPost => favPost.id === post.id);
+                        return (
+                            <Line
+                                key={post.id}
+                                type="monotone"
+                                data={[post]}
+                                dataKey="id"
+                                stroke="transparent"
+                                dot={{
+                                    r: spokenPosts.has(post.id) ? 10 : 5,
+                                    fill: isFavorite ? 'gold' : lineColor,
+                                    onClick: () => toggleFavorite(post)
+                                }}
+                                activeDot={true}
+                            />
+                        );
+                    })}
                 </LineChart>
             </ResponsiveContainer>
         </div>
