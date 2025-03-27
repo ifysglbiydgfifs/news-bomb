@@ -1,8 +1,8 @@
-import React, {useState, useEffect, useCallback} from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Chart from '../Chart';
 import RouteMenu from '../components/RouteMenu';
 import PostFilter from '../utils/PostFilter';
-import { speakPosts, highlightConnections } from '../utils/BFS';
+import { speakPosts, pauseSpeaking, stopSpeaking, highlightConnections, resumeSpeaking } from '../utils/BFS';
 
 const Home = () => {
     const [posts, setPosts] = useState([]);
@@ -11,6 +11,7 @@ const Home = () => {
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
     const [isSpeaking, setIsSpeaking] = useState(false);
+    const [isPaused, setIsPaused] = useState(false);
     const [spokenPosts, setSpokenPosts] = useState(new Set());
     const [highlightedLines, setHighlightedLines] = useState(new Set());
 
@@ -43,11 +44,31 @@ const Home = () => {
     }, [posts, searchQuery, startDate, endDate]);
 
     const handleSpeakPosts = useCallback(() => {
-        if (!isSpeaking) {
+        console.log('handleSpeakPosts called, isSpeaking:', isSpeaking, 'isPaused:', isPaused);
+
+        if (!isSpeaking && !isPaused) {
+            console.log('Starting to speak posts...');
             setIsSpeaking(true);
             speakPosts(filteredPosts, setSpokenPosts, setHighlightedLines, setIsSpeaking);
+        } else if (isSpeaking && !isPaused) {
+            console.log('Pausing speech...');
+            pauseSpeaking();
+            setIsPaused(true);
+        } else if (isPaused) {
+            console.log('Resuming speech...');
+            resumeSpeaking();
+            setIsPaused(false);
         }
-    }, [isSpeaking, filteredPosts]);
+    }, [isSpeaking, filteredPosts, isPaused]);
+
+    const handleStopSpeaking = useCallback(() => {
+        if (isSpeaking) {
+            console.log('Stopping speech...');
+            stopSpeaking();
+            setIsSpeaking(false);
+            setIsPaused(false);
+        }
+    }, [isSpeaking]);
 
     useEffect(() => {
         const highlighted = highlightConnections(filteredPosts, spokenPosts);
@@ -70,10 +91,13 @@ const Home = () => {
                 setStartDate={setStartDate}
                 setEndDate={setEndDate}
                 handleSpeakPosts={handleSpeakPosts}
+                handleStopSpeaking={handleStopSpeaking}
                 isSpeaking={isSpeaking}
+                isPaused={isPaused}
             />
         </div>
     );
 };
 
 export default Home;
+

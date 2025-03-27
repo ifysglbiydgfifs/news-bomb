@@ -52,20 +52,24 @@
   ],
   "favorites": [
     {
+      "id": 13,
+      "title": "News 13",
+      "summary": "Brief summary of the news 13",
+      "time": 1742562000000,
+      "lineTo": [
+        24,
+        8
+      ],
+      "isFavorite": false
+    },
+    {
       "id": 24,
       "title": "News 14",
       "summary": "Brief summary of the news 14",
       "time": 1742565600000,
       "lineTo": [
         18
-      ]
-    },
-    {
-      "id": 22,
-      "title": "News 22",
-      "summary": "Brief summary of the news 22",
-      "time": 1742662800000,
-      "lineTo": [],
+      ],
       "isFavorite": false
     },
     {

@@ -5,7 +5,7 @@ import FavoriteService from './utils/FavoriteService';
 
 const Chart = ({ posts, spokenPosts, highlightedLines }) => {
     const [favorites, setFavorites] = useState([]);
-    const [hoveredPostId, setHoveredPostId] = useState(null); // Для отслеживания текущей наведенной точки
+    const [hoveredPostId, setHoveredPostId] = useState(null);
 
     useEffect(() => {
         FavoriteService.getFavorites().then(setFavorites).catch(console.error);
@@ -63,7 +63,6 @@ const Chart = ({ posts, spokenPosts, highlightedLines }) => {
                     <YAxis hide={true} />
                     <Tooltip content={<CustomTooltip />} />
 
-                    {/* Рендеринг линий */}
                     {lines.map((line, index) => {
                         const isHighlighted = highlightedLines.has(`${line.from.id}-${line.to.id}`);
                         const lineData = [
@@ -86,7 +85,6 @@ const Chart = ({ posts, spokenPosts, highlightedLines }) => {
                         );
                     })}
 
-                    {/* Рендеринг точек */}
                     {postMap.map((post) => {
                         const isFavorite = favorites.some(favPost => favPost.id === post.id);
 
@@ -100,10 +98,10 @@ const Chart = ({ posts, spokenPosts, highlightedLines }) => {
                                 dot={{
                                     r: spokenPosts.has(post.id) ? 10 : 5,
                                     fill: isFavorite ? 'gold' : lineColor,
-                                    stroke: post.id === hoveredPostId ? 'blue' : 'transparent', // Синяя рамка вокруг текущей наведенной точки
+                                    stroke: post.id === hoveredPostId ? 'blue' : 'transparent',
                                     strokeWidth: 2,
-                                    onMouseEnter: () => setHoveredPostId(post.id),  // Устанавливаем ID наведенной точки
-                                    onMouseLeave: () => setHoveredPostId(null),    // Убираем ID, когда курсор уходит
+                                    onMouseEnter: () => setHoveredPostId(post.id),
+                                    onMouseLeave: () => setHoveredPostId(null),
                                     onClick: () => toggleFavorite(post),
                                 }}
                                 activeDot={false}

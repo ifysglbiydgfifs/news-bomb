@@ -9,48 +9,58 @@ const RouteMenu = ({
                        setStartDate,
                        setEndDate,
                        handleSpeakPosts,
+                       handleStopSpeaking,
                        isSpeaking,
+                       isPaused,
                    }) => {
     return (
-        <div className="fixed bottom-0 left-0 w-full bg-white p-4 border-t shadow-lg">
+        <div className="fixed bottom-24 left-1/2 transform -translate-x-1/2 bg-white p-2 border-t shadow-lg rounded-lg">
             <div className="flex flex-col sm:flex-row sm:space-x-4 items-center justify-between">
-                <div className="flex flex-col sm:flex-row sm:space-x-4 items-center">
+                <div className="flex flex-col sm:flex-row sm:space-x-2 items-center">
                     <input
                         type="text"
                         value={searchQuery}
                         onChange={handleSearch}
-                        placeholder="Search by title or description"
-                        className="p-2 border rounded mb-4 sm:mb-0 lg:w-96 w-full"
+                        placeholder="Search"
+                        className="p-1.5 border rounded-lg mb-2 sm:mb-0 lg:w-80 w-auto focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                     />
-
                     <input
                         type="date"
                         value={startDate}
                         onChange={(e) => setStartDate(e.target.value)}
-                        className="p-2 border rounded mb-4 sm:mb-0 w-full sm:w-40"
+                        className="p-1.5 border rounded-lg mb-2 sm:mb-0 w-auto sm:w-32 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                     />
                     <input
                         type="date"
                         value={endDate}
                         onChange={(e) => setEndDate(e.target.value)}
-                        className="p-2 border rounded w-full sm:w-40"
+                        className="p-1.5 border rounded-lg w-auto sm:w-32 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                     />
                     <button
                         onClick={handleFilter}
-                        className="p-2 bg-blue-500 text-white rounded w-full sm:w-auto"
+                        className="p-1.5 bg-blue-500 text-white rounded-lg w-auto sm:w-auto hover:bg-blue-400 transition duration-300 text-sm"
                     >
                         Filter
                     </button>
                 </div>
 
-                <button
-                    onClick={handleSpeakPosts}
-                    disabled={isSpeaking}
-                    aria-label={isSpeaking ? 'Stop speaking posts' : 'Start speaking posts'}
-                    className={`p-2 rounded w-full sm:w-auto ${isSpeaking ? 'bg-gray-400' : 'bg-blue-500 text-white'}`}
-                >
-                    {isSpeaking ? 'Speaking...' : 'Start Speaking'}
-                </button>
+                <div className="flex space-x-2">
+                    <button
+                        onClick={handleSpeakPosts}
+                        aria-label={isSpeaking ? (isPaused ? 'Resume speaking posts' : 'Pause speaking posts') : 'Start speaking posts'}
+                        className={`p-1.5 rounded-lg w-auto sm:w-auto ${isSpeaking ? (isPaused ? 'bg-green-500' : 'bg-yellow-500') : 'bg-blue-500 text-white hover:bg-blue-400'} transition duration-300 text-sm`}
+                    >
+                        {isSpeaking ? (isPaused ? 'Resume' : 'Pause') : 'Start Speaking'}
+                    </button>
+                    {isSpeaking && !isPaused && (
+                        <button
+                            onClick={handleStopSpeaking}
+                            className="p-1.5 bg-red-500 text-white rounded-lg w-auto sm:w-auto hover:bg-red-400 transition duration-300 text-sm"
+                        >
+                            Stop
+                        </button>
+                    )}
+                </div>
             </div>
         </div>
     );

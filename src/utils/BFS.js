@@ -1,4 +1,7 @@
+let currentSpeech = null;  // Переменная для отслеживания текущего выступления
+
 export const speakPosts = async (posts, setSpokenPosts, setHighlightedLines, setIsSpeaking) => {
+    console.log('speakPosts called');
     const postMap = posts.reduce((map, post) => {
         map[post.id] = post;
         return map;
@@ -13,20 +16,25 @@ export const speakPosts = async (posts, setSpokenPosts, setHighlightedLines, set
 
     const speakPost = (post) => {
         return new Promise((resolve) => {
+            console.log(`Speaking post: ${post.id}`);
             const speech = new SpeechSynthesisUtterance(`${post.title}. ${post.summary}`);
             speech.lang = 'en-US';
 
             speech.onend = () => {
+                console.log(`Finished speaking post: ${post.id}`);
                 resolve(post);
             };
 
+            currentSpeech = speech;
             window.speechSynthesis.speak(speech);
         });
     };
 
     const processQueue = async () => {
+        console.log('Processing queue...');
         while (queue.length > 0) {
             const currentPost = queue.shift();
+            console.log('Processing post:', currentPost.id);
 
             if (!visited.has(currentPost.id)) {
                 await speakPost(currentPost);
@@ -43,12 +51,33 @@ export const speakPosts = async (posts, setSpokenPosts, setHighlightedLines, set
             }
         }
 
+        console.log('Finished processing queue');
         setHighlightedLines(new Set());
         setSpokenPosts(new Set());
         setIsSpeaking(false);
     };
 
     await processQueue();
+};
+
+export const pauseSpeaking = () => {
+    if (currentSpeech) {
+        console.log('Pausing speech');
+        window.speechSynthesis.pause();
+    }
+};
+
+export const resumeSpeaking = () => {
+    if (currentSpeech) {
+        console.log('Resuming speech');
+        window.speechSynthesis.resume();
+    }
+};
+
+export const stopSpeaking = () => {
+    if (currentSpeech) {
+        window.speechSynthesis.cancel();
+    }
 };
 
 export const highlightConnections = (posts, spokenPosts) => {
