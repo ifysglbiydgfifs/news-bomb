@@ -45,7 +45,7 @@ const Home = () => {
     const handleSpeakPosts = useCallback(() => {
         if (!isSpeaking) {
             setIsSpeaking(true);
-            speakPosts(filteredPosts, setSpokenPosts, setHighlightedLines);
+            speakPosts(filteredPosts, setSpokenPosts, setHighlightedLines, setIsSpeaking);
         }
     }, [isSpeaking, filteredPosts]);
 

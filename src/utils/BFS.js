@@ -1,4 +1,4 @@
-export const speakPosts = async (posts, setSpokenPosts, setHighlightedLines) => {
+export const speakPosts = async (posts, setSpokenPosts, setHighlightedLines, setIsSpeaking) => {
     const postMap = posts.reduce((map, post) => {
         map[post.id] = post;
         return map;
@@ -44,6 +44,8 @@ export const speakPosts = async (posts, setSpokenPosts, setHighlightedLines) => 
         }
 
         setHighlightedLines(new Set());
+        setSpokenPosts(new Set());
+        setIsSpeaking(false);
     };
 
     await processQueue();

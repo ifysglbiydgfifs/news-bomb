@@ -52,15 +52,6 @@
   ],
   "favorites": [
     {
-      "id": 18,
-      "title": "News 16",
-      "summary": "Brief summary of the news 16",
-      "time": 1742572800000,
-      "lineTo": [
-        22
-      ]
-    },
-    {
       "id": 24,
       "title": "News 14",
       "summary": "Brief summary of the news 14",
@@ -70,21 +61,22 @@
       ]
     },
     {
-      "id": 17,
-      "title": "News 11",
-      "summary": "Brief summary of the news 11",
-      "time": 1742468400000,
-      "lineTo": [
-        12,
-        13
-      ]
-    },
-    {
       "id": 22,
       "title": "News 22",
       "summary": "Brief summary of the news 22",
       "time": 1742662800000,
-      "lineTo": []
+      "lineTo": [],
+      "isFavorite": false
+    },
+    {
+      "id": 18,
+      "title": "News 16",
+      "summary": "Brief summary of the news 16",
+      "time": 1742572800000,
+      "lineTo": [
+        22
+      ],
+      "isFavorite": false
     }
   ]
 }

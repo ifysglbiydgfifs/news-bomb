@@ -5,6 +5,7 @@ import FavoriteService from './utils/FavoriteService';
 
 const Chart = ({ posts, spokenPosts, highlightedLines }) => {
     const [favorites, setFavorites] = useState([]);
+    const [hoveredPostId, setHoveredPostId] = useState(null); // Для отслеживания текущей наведенной точки
 
     useEffect(() => {
         FavoriteService.getFavorites().then(setFavorites).catch(console.error);
@@ -47,7 +48,7 @@ const Chart = ({ posts, spokenPosts, highlightedLines }) => {
     return (
         <div className="w-full">
             <ResponsiveContainer width="100%" height={400}>
-                <LineChart data={posts}>
+                <LineChart data={postMap} margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis
                         dataKey="time"
@@ -57,11 +58,12 @@ const Chart = ({ posts, spokenPosts, highlightedLines }) => {
                             `${new Date(time).toLocaleDateString()} ${new Date(time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
                         }
                         label={{ value: "Дата и Время", position: "insideBottom", offset: -5 }}
-                        ticks={posts.map(post => post.time)}
+                        ticks={postMap.map(post => post.time)}
                     />
                     <YAxis hide={true} />
-                    <Tooltip content={<CustomTooltip />}/>
+                    <Tooltip content={<CustomTooltip />} />
 
+                    {/* Рендеринг линий */}
                     {lines.map((line, index) => {
                         const isHighlighted = highlightedLines.has(`${line.from.id}-${line.to.id}`);
                         const lineData = [
@@ -84,8 +86,10 @@ const Chart = ({ posts, spokenPosts, highlightedLines }) => {
                         );
                     })}
 
-                    {posts.map((post) => {
+                    {/* Рендеринг точек */}
+                    {postMap.map((post) => {
                         const isFavorite = favorites.some(favPost => favPost.id === post.id);
+
                         return (
                             <Line
                                 key={post.id}
@@ -96,16 +100,13 @@ const Chart = ({ posts, spokenPosts, highlightedLines }) => {
                                 dot={{
                                     r: spokenPosts.has(post.id) ? 10 : 5,
                                     fill: isFavorite ? 'gold' : lineColor,
-                                    stroke: 'blue',
+                                    stroke: post.id === hoveredPostId ? 'blue' : 'transparent', // Синяя рамка вокруг текущей наведенной точки
                                     strokeWidth: 2,
-                                    onClick: () => toggleFavorite(post)
+                                    onMouseEnter: () => setHoveredPostId(post.id),  // Устанавливаем ID наведенной точки
+                                    onMouseLeave: () => setHoveredPostId(null),    // Убираем ID, когда курсор уходит
+                                    onClick: () => toggleFavorite(post),
                                 }}
-                                activeDot={{
-                                r: 10,
-                                fill: isFavorite ? 'gold' : lineColor,
-                                stroke: 'blue',
-                                strokeWidth: 2,
-                                }}
+                                activeDot={false}
                             />
                         );
                     })}
