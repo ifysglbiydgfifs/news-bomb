@@ -42,7 +42,7 @@ app.post('/favorites', (req, res) => {
     const db = readDb();
 
     if (db.favorites.some(savedPost => savedPost.id === post.id)) {
-        return res.status(200).json({ message: 'Post already in favorites' });  // Уже добавлен
+        return res.status(200).json({ message: 'Post already in favorites' });
     }
 
     db.favorites.push(post);

@@ -1,4 +1,4 @@
-let currentSpeech = null;  // Переменная для отслеживания текущего выступления
+let currentSpeech = null;
 
 export const speakPosts = async (posts, setSpokenPosts, setHighlightedLines, setIsSpeaking) => {
     console.log('speakPosts called');

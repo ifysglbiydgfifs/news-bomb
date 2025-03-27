@@ -3,6 +3,7 @@ import Chart from '../Chart';
 import RouteMenu from '../components/RouteMenu';
 import PostFilter from '../utils/PostFilter';
 import { speakPosts, pauseSpeaking, stopSpeaking, highlightConnections, resumeSpeaking } from '../utils/BFS';
+import FavoriteService from '../utils/FavoriteService';
 
 const Home = () => {
     const [posts, setPosts] = useState([]);
@@ -14,6 +15,7 @@ const Home = () => {
     const [isPaused, setIsPaused] = useState(false);
     const [spokenPosts, setSpokenPosts] = useState(new Set());
     const [highlightedLines, setHighlightedLines] = useState(new Set());
+    const [favorites, setFavorites] = useState([]);
 
     useEffect(() => {
         fetch('http://localhost:3001/posts')
@@ -30,6 +32,8 @@ const Home = () => {
             .catch((error) => {
                 console.error('Error fetching posts:', error);
             });
+
+        FavoriteService.getFavorites().then(setFavorites).catch(console.error);
     }, []);
 
     const handleSearch = useCallback((e) => {
@@ -44,18 +48,13 @@ const Home = () => {
     }, [posts, searchQuery, startDate, endDate]);
 
     const handleSpeakPosts = useCallback(() => {
-        console.log('handleSpeakPosts called, isSpeaking:', isSpeaking, 'isPaused:', isPaused);
-
         if (!isSpeaking && !isPaused) {
-            console.log('Starting to speak posts...');
             setIsSpeaking(true);
             speakPosts(filteredPosts, setSpokenPosts, setHighlightedLines, setIsSpeaking);
         } else if (isSpeaking && !isPaused) {
-            console.log('Pausing speech...');
             pauseSpeaking();
             setIsPaused(true);
         } else if (isPaused) {
-            console.log('Resuming speech...');
             resumeSpeaking();
             setIsPaused(false);
         }
@@ -63,12 +62,24 @@ const Home = () => {
 
     const handleStopSpeaking = useCallback(() => {
         if (isSpeaking) {
-            console.log('Stopping speech...');
             stopSpeaking();
             setIsSpeaking(false);
             setIsPaused(false);
         }
     }, [isSpeaking]);
+
+    const handleToggleFavorite = (post) => {
+        const isFavorite = favorites.some(favPost => favPost.id === post.id);
+        if (isFavorite) {
+            FavoriteService.removeFavorite(post.id).then(() => {
+                setFavorites(favorites.filter(favPost => favPost.id !== post.id));
+            }).catch(console.error);
+        } else {
+            FavoriteService.addFavorite(post).then(() => {
+                setFavorites([...favorites, post]);
+            }).catch(console.error);
+        }
+    };
 
     useEffect(() => {
         const highlighted = highlightConnections(filteredPosts, spokenPosts);
@@ -81,6 +92,8 @@ const Home = () => {
                 posts={filteredPosts}
                 spokenPosts={spokenPosts}
                 highlightedLines={highlightedLines}
+                favorites={favorites}
+                onToggleFavorite={handleToggleFavorite}
             />
             <RouteMenu
                 searchQuery={searchQuery}
@@ -100,4 +113,3 @@ const Home = () => {
 };
 
 export default Home;
-

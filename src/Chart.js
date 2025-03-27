@@ -1,28 +1,9 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { CustomTooltip } from './utils/CustomTooltip';
-import FavoriteService from './utils/FavoriteService';
 
-const Chart = ({ posts, spokenPosts, highlightedLines }) => {
-    const [favorites, setFavorites] = useState([]);
+const Chart = ({ posts, spokenPosts, highlightedLines, favorites, onToggleFavorite }) => {
     const [hoveredPostId, setHoveredPostId] = useState(null);
-
-    useEffect(() => {
-        FavoriteService.getFavorites().then(setFavorites).catch(console.error);
-    }, []);
-
-    const toggleFavorite = (post) => {
-        const isFavorite = favorites.some(favPost => favPost.id === post.id);
-        if (isFavorite) {
-            FavoriteService.removeFavorite(post.id).then(() => {
-                setFavorites(favorites.filter(favPost => favPost.id !== post.id));
-            }).catch(console.error);
-        } else {
-            FavoriteService.addFavorite(post).then(() => {
-                setFavorites([...favorites, post]);
-            }).catch(console.error);
-        }
-    };
 
     const postMap = useMemo(() => {
         return posts.map(post => ({
@@ -102,7 +83,7 @@ const Chart = ({ posts, spokenPosts, highlightedLines }) => {
                                     strokeWidth: 2,
                                     onMouseEnter: () => setHoveredPostId(post.id),
                                     onMouseLeave: () => setHoveredPostId(null),
-                                    onClick: () => toggleFavorite(post),
+                                    onClick: () => onToggleFavorite(post),
                                 }}
                                 activeDot={false}
                             />
