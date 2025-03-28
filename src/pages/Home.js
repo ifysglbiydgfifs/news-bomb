@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import Chart from '../Chart';
+import Chart from '../utils/Chart';
 import RouteMenu from '../components/RouteMenu';
 import PostFilter from '../utils/PostFilter';
 import { speakPosts, pauseSpeaking, stopSpeaking, highlightConnections, resumeSpeaking } from '../utils/BFS';

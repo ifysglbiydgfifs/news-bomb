@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { CustomTooltip } from './utils/CustomTooltip';
+import { CustomTooltip } from './CustomTooltip';
 
 const Chart = ({ posts, spokenPosts, highlightedLines, favorites, onToggleFavorite }) => {
     const [hoveredPostId, setHoveredPostId] = useState(null);

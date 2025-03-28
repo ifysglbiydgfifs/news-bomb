@@ -18,7 +18,7 @@ export const speakPosts = async (posts, setSpokenPosts, setHighlightedLines, set
         return new Promise((resolve) => {
             console.log(`Speaking post: ${post.id}`);
             const speech = new SpeechSynthesisUtterance(`${post.title}. ${post.summary}`);
-            speech.lang = 'en-US';
+            speech.lang = 'ru-RU';
 
             speech.onend = () => {
                 console.log(`Finished speaking post: ${post.id}`);
