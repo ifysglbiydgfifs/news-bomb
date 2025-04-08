@@ -1,32 +1,20 @@
 class FavoriteService {
-    static async getFavorites() {
-        const response = await fetch('http://localhost:3001/favorites');
-        if (!response.ok) {
-            throw new Error('Error fetching favorites');
-        }
-        return await response.json();
+    static getFavorites() {
+        return new Promise((resolve, reject) => {
+            resolve([]);
+        });
     }
 
-    static async addFavorite(post) {
-        const response = await fetch('http://localhost:3001/favorites', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(post),
+    static addFavorite(post) {
+        return new Promise((resolve) => {
+            resolve({ message: 'Post added to favorites' });
         });
-        if (!response.ok) {
-            throw new Error('Error adding favorite');
-        }
     }
 
-    static async removeFavorite(id) {
-        const response = await fetch('http://localhost:3001/favorites', {
-            method: 'DELETE',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id }),
+    static removeFavorite(postId) {
+        return new Promise((resolve) => {
+            resolve({ message: 'Post removed from favorites' });
         });
-        if (!response.ok) {
-            throw new Error('Error removing favorite');
-        }
     }
 }
 

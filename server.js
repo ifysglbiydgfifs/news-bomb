@@ -1,70 +1,81 @@
 const express = require('express');
 const cors = require('cors');
-const fs = require('fs');
-const path = require('path');
+const { Pool } = require('pg');
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-const dbPath = path.join(__dirname, 'db.json');
+const pool = new Pool({
+    user: 'postgres',
+    host: 'localhost',
+    database: 'DigestBot',
+    password: '123',
+    port: 5432,
+});
 
-function readDb() {
+app.get('/posts', async (req, res) => {
     try {
-        const data = fs.readFileSync(dbPath, 'utf-8');
-        return JSON.parse(data);
-    } catch (err) {
-        console.error('Error reading db.json:', err);
-        return { posts: [], favorites: [] };
-    }
-}
+        const newsResult = await pool.query('SELECT * FROM news');
+        const entitiesResult = await pool.query('SELECT * FROM entities');
 
-function writeDb(data) {
+        const entitiesMap = entitiesResult.rows.reduce((acc, entity) => {
+            const links = entity.link ? entity.link.split(',').map(Number) : [];
+            acc[entity.id] = {
+                name: entity.name,
+                links: links,
+            };
+            return acc;
+        }, {});
+
+        const postMap = newsResult.rows.map(news => {
+            const entityInfo = entitiesMap[news.id] || {};
+            const link = entityInfo.links || [];
+
+            return {
+                ...news,
+                title: entityInfo.name || news.title,
+                time: parseInt(news.time),
+                link: link,
+            };
+        });
+        res.json(postMap);
+    } catch (err) {
+        console.error('Error fetching posts:', err);
+        res.status(500).json({ error: 'Failed to fetch posts' });
+    }
+});
+
+app.get('/favorites', async (req, res) => {
     try {
-        fs.writeFileSync(dbPath, JSON.stringify(data, null, 2), 'utf-8');
+        const result = await pool.query('SELECT * FROM news WHERE id IN (SELECT news_id FROM favorites)');
+        res.json(result.rows);
     } catch (err) {
-        console.error('Error writing to db.json:', err);
+        console.error('Error fetching favorites:', err);
+        res.status(500).json({ error: 'Failed to fetch favorites' });
     }
-}
-
-app.get('/posts', (req, res) => {
-    const db = readDb();
-    res.json(db.posts);
 });
 
-app.get('/favorites', (req, res) => {
-    const db = readDb();
-    res.json(db.favorites);
-});
-
-app.post('/favorites', (req, res) => {
-    const post = req.body;
-    const db = readDb();
-
-    if (db.favorites.some(savedPost => savedPost.id === post.id)) {
-        return res.status(200).json({ message: 'Post already in favorites' });
-    }
-
-    db.favorites.push(post);
-    writeDb(db);
-    return res.status(201).json({ message: 'Post added to favorites' });
-});
-
-app.delete('/favorites', (req, res) => {
-    console.log('Request body:', req.body);
-
+app.post('/favorites', async (req, res) => {
     const { id } = req.body;
-    const db = readDb();
-
-    const postIndex = db.favorites.findIndex(post => post.id === parseInt(id));
-
-    if (postIndex === -1) {
-        return res.status(404).json({ message: 'Post not found' });
+    try {
+        await pool.query('INSERT INTO favorites(news_id) VALUES($1) ON CONFLICT DO NOTHING', [id]);
+        res.status(201).json({ message: 'Post added to favorites' });
+    } catch (err) {
+        console.error('Error adding to favorites:', err);
+        res.status(500).json({ error: 'Failed to add to favorites' });
     }
+});
 
-    db.favorites.splice(postIndex, 1);
-    writeDb(db);
-    return res.status(200).json({ message: 'Post removed from favorites' });
+app.delete('/favorites', async (req, res) => {
+    const { id } = req.body;
+    try {
+        await pool.query('DELETE FROM favorites WHERE news_id = $1', [id]);
+        res.status(200).json({ message: 'Post removed from favorites' });
+    } catch (err) {
+        console.error('Error removing from favorites:', err);
+        res.status(500).json({ error: 'Failed to remove from favorites' });
+    }
 });
 
 app.listen(3001, () => {

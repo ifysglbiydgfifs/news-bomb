@@ -5,31 +5,35 @@ import { CustomTooltip } from './CustomTooltip';
 const Chart = ({ posts, spokenPosts, highlightedLines, favorites, onToggleFavorite }) => {
     const [hoveredPostId, setHoveredPostId] = useState(null);
 
-    const postMap = useMemo(() => {
-        return posts.map(post => ({
-            ...post,
-            isFavorite: favorites.some(favPost => favPost.id === post.id),
+    const entityMap = useMemo(() => {
+        if (!posts || posts.length === 0) {
+            return [];
+        }
+        return posts.map(entity => ({
+            ...entity,
+            isFavorite: favorites.some(favEntity => favEntity.id === entity.id),
         }));
     }, [posts, favorites]);
 
     const lines = useMemo(() => {
-        return postMap.reduce((acc, post) => {
-            post.lineTo.forEach(targetId => {
-                const targetPost = postMap.find(p => p.id === targetId);
-                if (targetPost) {
-                    acc.push({ from: post, to: targetPost });
+        return entityMap.reduce((acc, entity) => {
+            const links = entity.link || [];
+            links.forEach(targetId => {
+                const targetEntity = entityMap.find(e => e.id === targetId);
+                if (targetEntity) {
+                    acc.push({ from: entity, to: targetEntity });
                 }
             });
             return acc;
         }, []);
-    }, [postMap]);
+    }, [entityMap]);
 
     const lineColor = useMemo(() => `#${Math.floor(Math.random() * 0xFFFFFF).toString(16).padStart(6, '0')}`, []);
 
     return (
         <div className="w-full">
             <ResponsiveContainer width="100%" height={400}>
-                <LineChart data={postMap} margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
+                <LineChart data={entityMap} margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis
                         dataKey="time"
@@ -39,7 +43,7 @@ const Chart = ({ posts, spokenPosts, highlightedLines, favorites, onToggleFavori
                             `${new Date(time).toLocaleDateString()} ${new Date(time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
                         }
                         label={{ value: "Дата и Время", position: "insideBottom", offset: -5 }}
-                        ticks={postMap.map(post => post.time)}
+                        ticks={entityMap.map(entity => entity.time)}
                     />
                     <YAxis hide={true} />
                     <Tooltip content={<CustomTooltip />} />
@@ -66,24 +70,24 @@ const Chart = ({ posts, spokenPosts, highlightedLines, favorites, onToggleFavori
                         );
                     })}
 
-                    {postMap.map((post) => {
-                        const isFavorite = favorites.some(favPost => favPost.id === post.id);
+                    {entityMap.map((entity) => {
+                        const isFavorite = favorites.some(favEntity => favEntity.id === entity.id);
 
                         return (
                             <Line
-                                key={post.id}
+                                key={entity.id}
                                 type="monotone"
-                                data={[post]}
+                                data={[entity]}
                                 dataKey="id"
                                 stroke="transparent"
                                 dot={{
-                                    r: spokenPosts.has(post.id) ? 10 : 5,
+                                    r: spokenPosts.has(entity.id) ? 10 : 5,
                                     fill: isFavorite ? 'gold' : lineColor,
-                                    stroke: post.id === hoveredPostId ? 'blue' : 'transparent',
+                                    stroke: entity.id === hoveredPostId ? 'blue' : 'transparent',
                                     strokeWidth: 2,
-                                    onMouseEnter: () => setHoveredPostId(post.id),
+                                    onMouseEnter: () => setHoveredPostId(entity.id),
                                     onMouseLeave: () => setHoveredPostId(null),
-                                    onClick: () => onToggleFavorite(post),
+                                    onClick: () => onToggleFavorite(entity),
                                 }}
                                 activeDot={false}
                             />

@@ -24,7 +24,7 @@ const Home = () => {
                 const formattedPosts = data.map((post) => ({
                     ...post,
                     time: new Date(post.time).getTime(),
-                    lineTo: post.lineTo ? post.lineTo.split(',').map(Number) : [],
+                    link: Array.isArray(post.link) ? post.link : post.link ? post.link.split(',').map(Number).filter(Boolean) : [],
                 }));
                 setPosts(formattedPosts);
                 setFilteredPosts(formattedPosts);
@@ -32,8 +32,6 @@ const Home = () => {
             .catch((error) => {
                 console.error('Error fetching posts:', error);
             });
-
-        FavoriteService.getFavorites().then(setFavorites).catch(console.error);
     }, []);
 
     const handleSearch = useCallback((e) => {

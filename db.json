@@ -62,16 +62,6 @@
       "isFavorite": false
     },
     {
-      "id": 24,
-      "title": "News 14",
-      "summary": "Brief summary of the news 14",
-      "time": 1742565600000,
-      "lineTo": [
-        18
-      ],
-      "isFavorite": false
-    },
-    {
       "id": 22,
       "title": "News 22",
       "summary": "Brief summary of the news 22",
@@ -87,6 +77,27 @@
       "lineTo": [
         24,
         8
+      ],
+      "isFavorite": false
+    },
+    {
+      "id": 12,
+      "title": "Создана клавиатура, печатающая слова",
+      "summary": "Умелец создал клавиатуру с 1020 клавишами, печатающую сразу слова, вдохновленный комиксом Рэндала Манро",
+      "time": 1742558400000,
+      "lineTo": [
+        13,
+        22
+      ],
+      "isFavorite": false
+    },
+    {
+      "id": 24,
+      "title": "Развитие ИИ",
+      "summary": "Современные чат-боты развиваются, демонстрируя различные возможности и подходы к решению задач",
+      "time": 1742565600000,
+      "lineTo": [
+        18
       ],
       "isFavorite": false
     }

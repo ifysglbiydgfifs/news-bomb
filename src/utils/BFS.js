@@ -2,7 +2,9 @@ let currentSpeech = null;
 
 export const speakPosts = async (posts, setSpokenPosts, setHighlightedLines, setIsSpeaking) => {
     console.log('speakPosts called');
-    const postMap = posts.reduce((map, post) => {
+
+    const sortedPosts = [...posts].sort((a, b) => a.time - b.time); // Сортировка по времени
+    const postMap = sortedPosts.reduce((map, post) => {
         map[post.id] = post;
         return map;
     }, {});
@@ -10,14 +12,18 @@ export const speakPosts = async (posts, setSpokenPosts, setHighlightedLines, set
     const visited = new Set();
     const queue = [];
 
-    if (posts.length > 0) {
-        queue.push(posts[0]);
+    if (sortedPosts.length > 0) {
+        queue.push(sortedPosts[0]); // Начинаем с самого раннего поста
     }
 
     const speakPost = (post) => {
         return new Promise((resolve) => {
             console.log(`Speaking post: ${post.id}`);
-            const speech = new SpeechSynthesisUtterance(`${post.title}. ${post.summary}`);
+
+            // Сразу перед началом озвучивания выделяем точку
+            setSpokenPosts(prev => new Set([...prev, post.id]));
+
+            const speech = new SpeechSynthesisUtterance(`${post.title}.`);
             speech.lang = 'ru-RU';
 
             speech.onend = () => {
@@ -30,19 +36,20 @@ export const speakPosts = async (posts, setSpokenPosts, setHighlightedLines, set
         });
     };
 
+
     const processQueue = async () => {
         console.log('Processing queue...');
         while (queue.length > 0) {
             const currentPost = queue.shift();
-            console.log('Processing post:', currentPost.id);
 
             if (!visited.has(currentPost.id)) {
                 await speakPost(currentPost);
                 visited.add(currentPost.id);
 
+                // Добавляем в spokenPosts только после завершения озвучки
                 setSpokenPosts(prev => new Set([...prev, currentPost.id]));
 
-                currentPost.lineTo.forEach((targetId) => {
+                currentPost.link.forEach((targetId) => {
                     const targetPost = postMap[targetId];
                     if (targetPost && !visited.has(targetPost.id)) {
                         queue.push(targetPost);
@@ -79,16 +86,18 @@ export const stopSpeaking = () => {
         window.speechSynthesis.cancel();
     }
 };
-
 export const highlightConnections = (posts, spokenPosts) => {
     const highlightedLines = new Set();
     posts.forEach((fromPost) => {
-        fromPost.lineTo.forEach((targetId) => {
-            const toPost = posts.find((post) => post.id === targetId);
-            if (spokenPosts.has(fromPost.id) && spokenPosts.has(toPost.id)) {
-                highlightedLines.add(`${fromPost.id}-${toPost.id}`);
-            }
-        });
+        if (Array.isArray(fromPost.link)) {
+            fromPost.link.forEach((targetId) => {
+                const toPost = posts.find((post) => post.id === targetId);
+                // Теперь подсвечиваем только если оба поста озвучены
+                if (spokenPosts.has(fromPost.id) && spokenPosts.has(toPost.id)) {
+                    highlightedLines.add(`${fromPost.id}-${toPost.id}`);
+                }
+            });
+        }
     });
 
     return highlightedLines;
