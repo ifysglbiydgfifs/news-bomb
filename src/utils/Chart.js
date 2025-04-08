@@ -3,6 +3,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { CustomTooltip } from './CustomTooltip';
 import EntityNewsPopup from '../components/EntityNewsPopup';
 
+
 const Chart = ({ posts, favorites = [], onShowDigest }) => {
     const [hoveredPostId, setHoveredPostId] = useState(null);
     const [hoveredEntityNews, setHoveredEntityNews] = useState(null);
@@ -24,9 +25,10 @@ const Chart = ({ posts, favorites = [], onShowDigest }) => {
     const lineColor = useMemo(() => `#${Math.floor(Math.random() * 0xffffff).toString(16).padStart(6, '0')}`, []);
 
     const handlePointHover = (entity) => {
-        setHoveredPostId(entity.id);
+        setHoveredPostId(entity.visualId);
         setHoveredEntityNews({ entity, news: entity.news });
     };
+
 
     const handlePointLeave = () => {
         setHoveredPostId(null);
@@ -34,12 +36,12 @@ const Chart = ({ posts, favorites = [], onShowDigest }) => {
     };
 
     return (
-        <div className="w-full relative">
+        <div className="w-full ">
             <ResponsiveContainer width="100%" height={400}>
-                <LineChart data={entityMap} margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
+                <LineChart data={entityMap} margin={{ top: 5, right: 20, left: 10, bottom: 30 }}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis
-                        dataKey="time"
+                        dataKey="x"
                         type="number"
                         domain={['auto', 'auto']}
                         tickFormatter={(time) => {
@@ -47,22 +49,31 @@ const Chart = ({ posts, favorites = [], onShowDigest }) => {
                             return `${date.toLocaleDateString()} ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
                         }}
                         label={{ value: "Дата и Время", position: "insideBottom", offset: -5 }}
-                        ticks={entityMap.map(entity => entity.time)}
+                        interval="preserveStartEnd"
+
                     />
-                    <YAxis hide />
+
+                    <YAxis
+                        dataKey="y"
+                        type="number"
+                        domain={['auto', 'auto']}
+                        hide={true}
+                    />
+
                     <Tooltip content={<CustomTooltip />} />
 
                     {lines.map((line, index) => {
                         const lineData = [
-                            { ...line.from, time: line.from.time, id: line.from.id },
-                            { ...line.to, time: line.to.time, id: line.to.id }
+                            { x: line.from.x, y: line.from.y, time: line.from.time, name: line.from.name, type: line.from.type},
+                            { x: line.to.x, y: line.to.y, time: line.to.time, name: line.to.name, type: line.to.type }
                         ];
+
                         return (
                             <Line
                                 key={`line-${index}`}
                                 type="linear"
                                 data={lineData}
-                                dataKey="id"
+                                dataKey="y"
                                 stroke={lineColor}
                                 strokeWidth={2}
                                 dot={false}
@@ -70,29 +81,34 @@ const Chart = ({ posts, favorites = [], onShowDigest }) => {
                                 isAnimationActive={false}
                                 legendType="none"
                             />
+
                         );
                     })}
 
+
+
                     {entityMap.map((entity) => (
                         <Line
-                            key={`point-${entity.id}`}
-                            type="monotone"
+                            key={`point-${entity.visualId}`}
+                            type="linear"
                             data={[entity]}
-                            dataKey="id"
+                            dataKey="y"
                             stroke="transparent"
                             dot={{
-                                r: entity.id === hoveredPostId ? 10 : 5,
+                                r: entity.visualId === hoveredPostId ? 10 : 5,
                                 fill: lineColor,
-                                stroke: entity.id === hoveredPostId ? 'blue' : 'transparent',
+                                stroke: entity.visualId === hoveredPostId ? 'blue' : 'transparent',
                                 strokeWidth: 2,
-                                onMouseEnter: () => handlePointHover(entity),
-                                onMouseLeave: () => handlePointLeave(),
+                                onMouseEnter: () => setHoveredPostId(entity.visualId),
+                                onMouseLeave: () => setHoveredPostId(null),
                                 onClick: () => onShowDigest(entity),
                             }}
-                            activeDot={false}
                             isAnimationActive={false}
+                            activeDot={false}
                         />
                     ))}
+
+
                 </LineChart>
             </ResponsiveContainer>
 

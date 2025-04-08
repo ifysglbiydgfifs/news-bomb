@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 import Chart from '../utils/Chart';
 import RouteMenu from '../components/RouteMenu';
 import PostFilter from '../utils/PostFilter';
@@ -26,6 +27,9 @@ const Home = () => {
                         ...post,
                         time: minTime,
                         link: Array.isArray(post.link) ? post.link : [],
+                        visualId: uuidv4(),
+                        x: minTime, // ось X — это время
+                        y: Math.random() * 100, // ось Y — случайное число для разнесения
                     };
                 });
                 setPosts(formatted);
@@ -33,7 +37,6 @@ const Home = () => {
             })
             .catch(console.error);
     }, []);
-
 
     const handleSearch = useCallback((e) => {
         const value = e.target.value;
