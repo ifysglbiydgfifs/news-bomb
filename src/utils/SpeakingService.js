@@ -8,7 +8,6 @@ class SpeakingService {
         const voices = window.speechSynthesis.getVoices();
         const russianVoices = voices.filter(v => v.lang === 'ru-RU');
 
-        // Попробуем выбрать Google голос, если есть
         const googleVoice = russianVoices.find(v => v.name.includes('Google'));
 
         return googleVoice || russianVoices[0] || null;
