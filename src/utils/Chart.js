@@ -1,10 +1,9 @@
 import React, { useState, useMemo } from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import {LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer} from 'recharts';
 import { CustomTooltip } from './CustomTooltip';
 import EntityNewsPopup from '../components/EntityNewsPopup';
 
-
-const Chart = ({ posts, favorites = [], onShowDigest }) => {
+const Chart = ({ posts, onPointClick }) => {
     const [hoveredPostId, setHoveredPostId] = useState(null);
     const [hoveredEntityNews, setHoveredEntityNews] = useState(null);
 
@@ -22,21 +21,20 @@ const Chart = ({ posts, favorites = [], onShowDigest }) => {
         }, []);
     }, [entityMap]);
 
-    const lineColor = useMemo(() => `#${Math.floor(Math.random() * 0xffffff).toString(16).padStart(6, '0')}`, []);
-
     const handlePointHover = (entity) => {
         setHoveredPostId(entity.visualId);
         setHoveredEntityNews({ entity, news: entity.news });
     };
-
 
     const handlePointLeave = () => {
         setHoveredPostId(null);
         setHoveredEntityNews(null);
     };
 
+    const lineColor = useMemo(() => `#${Math.floor(Math.random() * 0xffffff).toString(16).padStart(6, '0')}`, []);
+
     return (
-        <div className="w-full ">
+        <div className="w-full">
             <ResponsiveContainer width="100%" height={400}>
                 <LineChart data={entityMap} margin={{ top: 5, right: 20, left: 10, bottom: 30 }}>
                     <CartesianGrid strokeDasharray="3 3" />
@@ -50,22 +48,26 @@ const Chart = ({ posts, favorites = [], onShowDigest }) => {
                         }}
                         label={{ value: "Дата и Время", position: "insideBottom", offset: -5 }}
                         interval="preserveStartEnd"
-
                     />
-
-                    <YAxis
-                        dataKey="y"
-                        type="number"
-                        domain={['auto', 'auto']}
-                        hide={true}
-                    />
-
+                    <YAxis dataKey="y" type="number" domain={['auto', 'auto']} hide={true} />
                     <Tooltip content={<CustomTooltip />} />
 
                     {lines.map((line, index) => {
                         const lineData = [
-                            { x: line.from.x, y: line.from.y, time: line.from.time, name: line.from.name, type: line.from.type},
-                            { x: line.to.x, y: line.to.y, time: line.to.time, name: line.to.name, type: line.to.type }
+                            {
+                                x: line.from.x,
+                                y: line.from.y,
+                                time: line.from.time,
+                                name: line.from.name,
+                                type: line.from.type
+                            },
+                            {
+                                x: line.to.x,
+                                y: line.to.y,
+                                time: line.to.time,
+                                name: line.to.name,
+                                type: line.to.type
+                            }
                         ];
 
                         return (
@@ -81,11 +83,8 @@ const Chart = ({ posts, favorites = [], onShowDigest }) => {
                                 isAnimationActive={false}
                                 legendType="none"
                             />
-
                         );
                     })}
-
-
 
                     {entityMap.map((entity) => (
                         <Line
@@ -99,20 +98,19 @@ const Chart = ({ posts, favorites = [], onShowDigest }) => {
                                 fill: lineColor,
                                 stroke: entity.visualId === hoveredPostId ? 'blue' : 'transparent',
                                 strokeWidth: 2,
-                                onMouseEnter: () => setHoveredPostId(entity.visualId),
-                                onMouseLeave: () => setHoveredPostId(null),
-                                onClick: () => onShowDigest(entity),
+                                onMouseEnter: () => handlePointHover(entity),
+                                onMouseLeave: handlePointLeave,
+                                onClick: () => onPointClick(entity),
                             }}
                             isAnimationActive={false}
                             activeDot={false}
                         />
                     ))}
-
-
                 </LineChart>
             </ResponsiveContainer>
-
-            {hoveredEntityNews && <EntityNewsPopup entity={hoveredEntityNews.entity} news={hoveredEntityNews.news} />}
+            {hoveredEntityNews && (
+                <EntityNewsPopup entity={hoveredEntityNews.entity} news={hoveredEntityNews.news} />
+            )}
         </div>
     );
 };

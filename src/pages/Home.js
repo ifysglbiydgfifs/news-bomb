@@ -4,6 +4,7 @@ import Chart from '../utils/Chart';
 import RouteMenu from '../components/RouteMenu';
 import PostFilter from '../utils/PostFilter';
 import DigestPopup from '../components/DigestPopup';
+import SpeakingService from "../utils/SpeakingService";
 
 const Home = () => {
     const [posts, setPosts] = useState([]);
@@ -14,6 +15,9 @@ const Home = () => {
     const [selectedType, setSelectedType] = useState('');
     const [digestPost, setDigestPost] = useState(null);
     const [favorites, setFavorites] = useState([]);
+    const [isSpeaking, setIsSpeaking] = useState(false);
+    const [isPaused, setIsPaused] = useState(false);
+
 
     useEffect(() => {
         fetch('http://localhost:3001/posts')
@@ -28,8 +32,8 @@ const Home = () => {
                         time: minTime,
                         link: Array.isArray(post.link) ? post.link : [],
                         visualId: uuidv4(),
-                        x: minTime, // ось X — это время
-                        y: Math.random() * 100, // ось Y — случайное число для разнесения
+                        x: minTime,
+                        y: Math.random() * 100,
                     };
                 });
                 setPosts(formatted);
@@ -37,6 +41,16 @@ const Home = () => {
             })
             .catch(console.error);
     }, []);
+
+    const handleShowDigest = (post) => {
+        fetch(`http://localhost:3001/digest`)
+            .then((res) => res.json())
+            .then((data) => {
+                const digest = data.find(d => d.type === post.type);
+                setDigestPost(digest);
+            })
+            .catch(console.error);
+    };
 
     const handleSearch = useCallback((e) => {
         const value = e.target.value;
@@ -56,20 +70,48 @@ const Home = () => {
         setFilteredPosts(filtered);
     };
 
-    const handleShowDigest = (post) => {
-        setDigestPost(post);
+    const handlePointClick = (entity) => {
+        handleShowDigest(entity);
     };
 
     const handleCloseDigest = () => {
+        SpeakingService.cancel(); // ⬅️ Останавливаем озвучку при закрытии окна
         setDigestPost(null);
     };
+
+    useEffect(() => {
+        window.speechSynthesis.getVoices(); // Прогреваем голосовой список
+    }, []);
+
+
+    const handleSpeak = () => {
+        if (!digestPost) return;
+        SpeakingService.speakDigest(digestPost);
+    };
+
+    const handlePause = () => {
+        SpeakingService.pause();
+        setIsPaused(true);
+    };
+
+    const handleResume = () => {
+        SpeakingService.resume();
+        setIsPaused(false);
+    };
+
+    const handleStopSpeaking = () => {
+        SpeakingService.cancel();
+        setIsSpeaking(false);
+        setIsPaused(false);
+    };
+
 
     return (
         <div className="min-h-screen bg-gray-100 flex flex-col justify-center items-center p-4">
             <Chart
                 posts={filteredPosts}
                 favorites={favorites}
-                onShowDigest={handleShowDigest}
+                onPointClick={handlePointClick}
             />
             <RouteMenu
                 searchQuery={searchQuery}
@@ -83,7 +125,19 @@ const Home = () => {
                 allTypes={[...new Set(posts.map(p => p.type))]}
                 selectedType={selectedType}
             />
-            {digestPost && <DigestPopup post={digestPost} onClose={handleCloseDigest} />}
+            {digestPost && (
+                <DigestPopup
+                    content={digestPost.content}
+                    summary={digestPost.summary}
+                    onClose={handleCloseDigest}
+                    onSpeak={handleSpeak}
+                    onPause={handlePause}
+                    onResume={handleResume}
+                    onStop={handleStopSpeaking}
+                    isSpeaking={isSpeaking}
+                    isPaused={isPaused}
+                />
+            )}
         </div>
     );
 };

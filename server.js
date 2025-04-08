@@ -58,6 +58,21 @@ app.get('/posts', async (req, res) => {
     }
 });
 
+app.get('/digest', async (req, res) => {
+    try {
+        const result = await pool.query('SELECT * FROM digests');
+        if (result.rows.length > 0) {
+            res.json(result.rows);
+        } else {
+            console.log('Дайджесты не найдены');
+            res.status(404).json({ error: 'No digests found' });
+        }
+    } catch (error) {
+        console.error('Ошибка при запросе дайджестов:', error);
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
 app.listen(port, () => {
     console.log(`Server listening on http://localhost:${port}`);
 });
