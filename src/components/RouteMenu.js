@@ -8,10 +8,9 @@ const RouteMenu = ({
                        handleFilter,
                        setStartDate,
                        setEndDate,
-                       handleSpeakPosts,
-                       handleStopSpeaking,
-                       isSpeaking,
-                       isPaused,
+                       handleTypeChange,
+                       allTypes,
+                       selectedType,
                    }) => {
     return (
         <div className="fixed bottom-24 left-1/2 transform -translate-x-1/2 bg-white p-2 border-t shadow-lg rounded-lg">
@@ -36,30 +35,22 @@ const RouteMenu = ({
                         onChange={(e) => setEndDate(e.target.value)}
                         className="p-1.5 border rounded-lg w-auto sm:w-32 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                     />
+                    <select
+                        value={selectedType}
+                        onChange={(e) => handleTypeChange(e.target.value)}
+                        className="p-1.5 border rounded-lg w-auto sm:w-40 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                    >
+                        <option value="">Все темы</option>
+                        {allTypes.map((type, idx) => (
+                            <option key={idx} value={type}>{type}</option>
+                        ))}
+                    </select>
                     <button
                         onClick={handleFilter}
                         className="p-1.5 bg-blue-500 text-white rounded-lg w-auto sm:w-auto hover:bg-blue-400 transition duration-300 text-sm"
                     >
                         Filter
                     </button>
-                </div>
-
-                <div className="flex space-x-2">
-                    <button
-                        onClick={handleSpeakPosts}
-                        aria-label={isSpeaking ? (isPaused ? 'Resume speaking posts' : 'Pause speaking posts') : 'Start speaking posts'}
-                        className={`p-1.5 rounded-lg w-auto sm:w-auto ${isSpeaking ? (isPaused ? 'bg-green-500' : 'bg-yellow-500') : 'bg-blue-500 text-white hover:bg-blue-400'} transition duration-300 text-sm`}
-                    >
-                        {isSpeaking ? (isPaused ? 'Resume' : 'Pause') : 'Start Speaking'}
-                    </button>
-                    {isSpeaking && !isPaused && (
-                        <button
-                            onClick={handleStopSpeaking}
-                            className="p-1.5 bg-red-500 text-white rounded-lg w-auto sm:w-auto hover:bg-red-400 transition duration-300 text-sm"
-                        >
-                            Stop
-                        </button>
-                    )}
                 </div>
             </div>
         </div>

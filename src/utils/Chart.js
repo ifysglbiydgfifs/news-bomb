@@ -1,14 +1,11 @@
 import React, { useState, useMemo } from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import {LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,} from 'recharts';
 import { CustomTooltip } from './CustomTooltip';
 
-const Chart = ({ posts, spokenPosts, highlightedLines, onShowDigest }) => {
+const Chart = ({ posts, spokenPosts = new Set(), highlightedLines = new Set(), onShowDigest }) => {
     const [hoveredPostId, setHoveredPostId] = useState(null);
 
     const entityMap = useMemo(() => {
-        if (!posts || posts.length === 0) {
-            return [];
-        }
         return posts.map(entity => ({
             ...entity,
             isFavorite: false,
@@ -44,15 +41,13 @@ const Chart = ({ posts, spokenPosts, highlightedLines, onShowDigest }) => {
                         label={{ value: "Дата и Время", position: "insideBottom", offset: -5 }}
                         ticks={entityMap.map(entity => entity.time)}
                     />
-
-                    <YAxis hide={true} />
+                    <YAxis hide />
                     <Tooltip content={<CustomTooltip />} />
 
                     {lines.map((line, index) => {
-                        const isHighlighted = highlightedLines.has(`${line.from.id}-${line.to.id}`);
                         const lineData = [
-                            { ...line.from, time: line.from.time, id: line.from.id },
-                            { ...line.to, time: line.to.time, id: line.to.id }
+                            { ...line.from, time: line.from.time },
+                            { ...line.to, time: line.to.time }
                         ];
 
                         return (
@@ -62,7 +57,7 @@ const Chart = ({ posts, spokenPosts, highlightedLines, onShowDigest }) => {
                                 data={lineData}
                                 dataKey="id"
                                 stroke="#8884d8"
-                                strokeWidth={isHighlighted ? 4 : 2}
+                                strokeWidth={2}
                                 dot={false}
                                 activeDot={false}
                                 isAnimationActive={false}
@@ -70,27 +65,24 @@ const Chart = ({ posts, spokenPosts, highlightedLines, onShowDigest }) => {
                         );
                     })}
 
-                    {entityMap.map((entity) => {
-                        return (
-                            <Line
-                                key={entity.id}
-                                type="monotone"
-                                data={[entity]}
-                                dataKey="id"
-                                stroke="transparent"
-                                dot={{
-                                    r: spokenPosts.has(entity.id) ? 10 : 5,
-                                    fill: "#8884d8",
-                                    stroke: entity.id === hoveredPostId ? 'blue' : 'transparent',
-                                    strokeWidth: 2,
-                                    onMouseEnter: () => setHoveredPostId(entity.id),
-                                    onMouseLeave: () => setHoveredPostId(null),
-                                    onClick: () => onShowDigest(entity),
-                                }}
-                                activeDot={false}
-                            />
-                        );
-                    })}
+                    {entityMap.map((entity) => (
+                        <Line
+                            key={entity.id}
+                            type="monotone"
+                            data={[entity]}
+                            dataKey="id"
+                            stroke="transparent"
+                            dot={{
+                                fill: "#8884d8",
+                                stroke: entity.id === hoveredPostId ? 'blue' : 'transparent',
+                                strokeWidth: 2,
+                                onMouseEnter: () => setHoveredPostId(entity.id),
+                                onMouseLeave: () => setHoveredPostId(null),
+                                onClick: () => onShowDigest(entity),
+                            }}
+                            activeDot={false}
+                        />
+                    ))}
                 </LineChart>
             </ResponsiveContainer>
         </div>

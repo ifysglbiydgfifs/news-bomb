@@ -48,37 +48,37 @@ app.get('/posts', async (req, res) => {
     }
 });
 
-app.get('/favorites', async (req, res) => {
-    try {
-        const result = await pool.query('SELECT * FROM news WHERE id IN (SELECT news_id FROM favorites)');
-        res.json(result.rows);
-    } catch (err) {
-        console.error('Error fetching favorites:', err);
-        res.status(500).json({ error: 'Failed to fetch favorites' });
-    }
-});
-
-app.post('/favorites', async (req, res) => {
-    const { id } = req.body;
-    try {
-        await pool.query('INSERT INTO favorites(news_id) VALUES($1) ON CONFLICT DO NOTHING', [id]);
-        res.status(201).json({ message: 'Post added to favorites' });
-    } catch (err) {
-        console.error('Error adding to favorites:', err);
-        res.status(500).json({ error: 'Failed to add to favorites' });
-    }
-});
-
-app.delete('/favorites', async (req, res) => {
-    const { id } = req.body;
-    try {
-        await pool.query('DELETE FROM favorites WHERE news_id = $1', [id]);
-        res.status(200).json({ message: 'Post removed from favorites' });
-    } catch (err) {
-        console.error('Error removing from favorites:', err);
-        res.status(500).json({ error: 'Failed to remove from favorites' });
-    }
-});
+// app.get('/favorites', async (req, res) => {
+//     try {
+//         const result = await pool.query('SELECT * FROM news WHERE id IN (SELECT news_id FROM favorites)');
+//         res.json(result.rows);
+//     } catch (err) {
+//         console.error('Error fetching favorites:', err);
+//         res.status(500).json({ error: 'Failed to fetch favorites' });
+//     }
+// });
+//
+// app.post('/favorites', async (req, res) => {
+//     const { id } = req.body;
+//     try {
+//         await pool.query('INSERT INTO favorites(news_id) VALUES($1) ON CONFLICT DO NOTHING', [id]);
+//         res.status(201).json({ message: 'Post added to favorites' });
+//     } catch (err) {
+//         console.error('Error adding to favorites:', err);
+//         res.status(500).json({ error: 'Failed to add to favorites' });
+//     }
+// });
+//
+// app.delete('/favorites', async (req, res) => {
+//     const { id } = req.body;
+//     try {
+//         await pool.query('DELETE FROM favorites WHERE news_id = $1', [id]);
+//         res.status(200).json({ message: 'Post removed from favorites' });
+//     } catch (err) {
+//         console.error('Error removing from favorites:', err);
+//         res.status(500).json({ error: 'Failed to remove from favorites' });
+//     }
+// });
 
 app.listen(3001, () => {
     console.log('Server is running on port 3001');
