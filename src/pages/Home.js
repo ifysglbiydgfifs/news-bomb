@@ -18,16 +18,22 @@ const Home = () => {
         fetch('http://localhost:3001/posts')
             .then((res) => res.json())
             .then((data) => {
-                const formatted = data.map((post) => ({
-                    ...post,
-                    time: new Date(post.time).getTime(),
-                    link: Array.isArray(post.link) ? post.link : post.link ? post.link.split(',').map(Number).filter(Boolean) : [],
-                }));
+                const formatted = data.map((post) => {
+                    const minTime = post.news?.length
+                        ? Math.min(...post.news.map(n => n.time))
+                        : Date.now(); // если нет новостей — текущая дата
+                    return {
+                        ...post,
+                        time: minTime,
+                        link: Array.isArray(post.link) ? post.link : [],
+                    };
+                });
                 setPosts(formatted);
                 setFilteredPosts(formatted);
             })
             .catch(console.error);
     }, []);
+
 
     const handleSearch = useCallback((e) => {
         const value = e.target.value;

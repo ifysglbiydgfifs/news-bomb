@@ -1,15 +1,13 @@
 import React, { useState, useMemo } from 'react';
-import {LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,} from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { CustomTooltip } from './CustomTooltip';
+import EntityNewsPopup from '../components/EntityNewsPopup';
 
-const Chart = ({ posts, spokenPosts = new Set(), highlightedLines = new Set(), onShowDigest }) => {
+const Chart = ({ posts, favorites = [], onShowDigest }) => {
     const [hoveredPostId, setHoveredPostId] = useState(null);
+    const [hoveredEntityNews, setHoveredEntityNews] = useState(null);
 
-    const entityMap = useMemo(() => {
-        return posts.map(entity => ({
-            ...entity,
-        }));
-    }, [posts]);
+    const entityMap = useMemo(() => posts, [posts]);
 
     const lines = useMemo(() => {
         return entityMap.reduce((acc, entity) => {
@@ -23,10 +21,20 @@ const Chart = ({ posts, spokenPosts = new Set(), highlightedLines = new Set(), o
         }, []);
     }, [entityMap]);
 
-    const lineColor = useMemo(() => `#${Math.floor(Math.random() * 0xFFFFFF).toString(16).padStart(6, '0')}`, []);
+    const lineColor = useMemo(() => `#${Math.floor(Math.random() * 0xffffff).toString(16).padStart(6, '0')}`, []);
+
+    const handlePointHover = (entity) => {
+        setHoveredPostId(entity.id);
+        setHoveredEntityNews({ entity, news: entity.news });
+    };
+
+    const handlePointLeave = () => {
+        setHoveredPostId(null);
+        setHoveredEntityNews(null);
+    };
 
     return (
-        <div className="w-full">
+        <div className="w-full relative">
             <ResponsiveContainer width="100%" height={400}>
                 <LineChart data={entityMap} margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
                     <CartesianGrid strokeDasharray="3 3" />
@@ -49,7 +57,6 @@ const Chart = ({ posts, spokenPosts = new Set(), highlightedLines = new Set(), o
                             { ...line.from, time: line.from.time, id: line.from.id },
                             { ...line.to, time: line.to.time, id: line.to.id }
                         ];
-
                         return (
                             <Line
                                 key={`line-${index}`}
@@ -78,8 +85,8 @@ const Chart = ({ posts, spokenPosts = new Set(), highlightedLines = new Set(), o
                                 fill: lineColor,
                                 stroke: entity.id === hoveredPostId ? 'blue' : 'transparent',
                                 strokeWidth: 2,
-                                onMouseEnter: () => setHoveredPostId(entity.id),
-                                onMouseLeave: () => setHoveredPostId(null),
+                                onMouseEnter: () => handlePointHover(entity),
+                                onMouseLeave: () => handlePointLeave(),
                                 onClick: () => onShowDigest(entity),
                             }}
                             activeDot={false}
@@ -88,6 +95,8 @@ const Chart = ({ posts, spokenPosts = new Set(), highlightedLines = new Set(), o
                     ))}
                 </LineChart>
             </ResponsiveContainer>
+
+            {hoveredEntityNews && <EntityNewsPopup entity={hoveredEntityNews.entity} news={hoveredEntityNews.news} />}
         </div>
     );
 };

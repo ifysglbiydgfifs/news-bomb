@@ -5,7 +5,7 @@ const DigestPopup = ({ post, onClose }) => {
         const synth = window.speechSynthesis;
         const text = `Дайджест по теме ${post.type}. ${post.summary || "Нет краткого описания."}`;
         const utterance = new SpeechSynthesisUtterance(text);
-        synth.cancel(); // отменить любые предыдущие речи
+        synth.cancel();
         synth.speak(utterance);
     };
 
