@@ -75,12 +75,12 @@ const Home = () => {
     };
 
     const handleCloseDigest = () => {
-        SpeakingService.cancel(); // ⬅️ Останавливаем озвучку при закрытии окна
+        SpeakingService.cancel();
         setDigestPost(null);
     };
 
     useEffect(() => {
-        window.speechSynthesis.getVoices(); // Прогреваем голосовой список
+        window.speechSynthesis.getVoices();
     }, []);
 
 
