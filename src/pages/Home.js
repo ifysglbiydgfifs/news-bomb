@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import Chart from '../utils/Chart';
 import RouteMenu from '../components/RouteMenu';
 import PostFilter from '../utils/PostFilter';
-import DigestPopup from '../utils/DigestPopup';
+import DigestPopup from '../components/DigestPopup';
 
 const Home = () => {
     const [posts, setPosts] = useState([]);

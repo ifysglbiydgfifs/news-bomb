@@ -8,15 +8,13 @@ const Chart = ({ posts, spokenPosts = new Set(), highlightedLines = new Set(), o
     const entityMap = useMemo(() => {
         return posts.map(entity => ({
             ...entity,
-            isFavorite: false,
         }));
     }, [posts]);
 
     const lines = useMemo(() => {
         return entityMap.reduce((acc, entity) => {
-            const links = entity.link || [];
-            links.forEach(targetId => {
-                const targetEntity = entityMap.find(e => e.id === targetId);
+            entity.link.forEach(targetId => {
+                const targetEntity = entityMap.find(p => p.id === targetId);
                 if (targetEntity) {
                     acc.push({ from: entity, to: targetEntity });
                 }
@@ -24,6 +22,8 @@ const Chart = ({ posts, spokenPosts = new Set(), highlightedLines = new Set(), o
             return acc;
         }, []);
     }, [entityMap]);
+
+    const lineColor = useMemo(() => `#${Math.floor(Math.random() * 0xFFFFFF).toString(16).padStart(6, '0')}`, []);
 
     return (
         <div className="w-full">
@@ -46,34 +46,36 @@ const Chart = ({ posts, spokenPosts = new Set(), highlightedLines = new Set(), o
 
                     {lines.map((line, index) => {
                         const lineData = [
-                            { ...line.from, time: line.from.time },
-                            { ...line.to, time: line.to.time }
+                            { ...line.from, time: line.from.time, id: line.from.id },
+                            { ...line.to, time: line.to.time, id: line.to.id }
                         ];
 
                         return (
                             <Line
-                                key={index}
-                                type="monotone"
+                                key={`line-${index}`}
+                                type="linear"
                                 data={lineData}
                                 dataKey="id"
-                                stroke="#8884d8"
+                                stroke={lineColor}
                                 strokeWidth={2}
                                 dot={false}
                                 activeDot={false}
                                 isAnimationActive={false}
+                                legendType="none"
                             />
                         );
                     })}
 
                     {entityMap.map((entity) => (
                         <Line
-                            key={entity.id}
+                            key={`point-${entity.id}`}
                             type="monotone"
                             data={[entity]}
                             dataKey="id"
                             stroke="transparent"
                             dot={{
-                                fill: "#8884d8",
+                                r: entity.id === hoveredPostId ? 10 : 5,
+                                fill: lineColor,
                                 stroke: entity.id === hoveredPostId ? 'blue' : 'transparent',
                                 strokeWidth: 2,
                                 onMouseEnter: () => setHoveredPostId(entity.id),
@@ -81,6 +83,7 @@ const Chart = ({ posts, spokenPosts = new Set(), highlightedLines = new Set(), o
                                 onClick: () => onShowDigest(entity),
                             }}
                             activeDot={false}
+                            isAnimationActive={false}
                         />
                     ))}
                 </LineChart>
