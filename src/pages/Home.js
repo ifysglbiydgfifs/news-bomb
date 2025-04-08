@@ -21,7 +21,7 @@ const Home = () => {
                 const formatted = data.map((post) => {
                     const minTime = post.news?.length
                         ? Math.min(...post.news.map(n => n.time))
-                        : Date.now(); // если нет новостей — текущая дата
+                        : Date.now();
                     return {
                         ...post,
                         time: minTime,

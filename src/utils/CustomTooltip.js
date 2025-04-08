@@ -6,7 +6,7 @@ export const CustomTooltip = ({ payload }) => {
 
         return (
             <div className="custom-tooltip p-3 bg-white border rounded-lg shadow-lg relative">
-                <h4 className="text-lg font-semibold">{post.title}</h4>
+                <h4 className="text-lg font-semibold">{post.name}</h4>
                 <p>{post.summary}</p>
                 <p className="text-sm text-gray-500">{new Date(post.time).toLocaleString()}</p>
                 <p className="text-sm text-gray-500">Type: {post.type}</p>

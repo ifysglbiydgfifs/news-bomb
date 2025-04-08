@@ -8,7 +8,6 @@ const port = 3001;
 app.use(cors());
 app.use(express.json());
 
-// Подключение к PostgreSQL
 const pool = new Pool({
     user: 'postgres',
     host: 'localhost',
@@ -17,22 +16,17 @@ const pool = new Pool({
     port: 5432,
 });
 
-// Получение сущностей с новостями
 app.get('/posts', async (req, res) => {
     try {
-        // Получаем все сущности
         const entitiesResult = await pool.query('SELECT * FROM entities');
         const entities = entitiesResult.rows;
 
-        // Получаем все связи сущность-новость
         const linksResult = await pool.query('SELECT * FROM news_entity_links');
         const links = linksResult.rows;
 
-        // Получаем все новости
         const newsResult = await pool.query('SELECT * FROM news');
         const news = newsResult.rows;
 
-        // Преобразуем новости в Map для быстрого доступа
         const newsMap = new Map();
         for (const n of news) {
             newsMap.set(n.id, {
@@ -42,7 +36,6 @@ app.get('/posts', async (req, res) => {
             });
         }
 
-        // Группируем связи по сущностям
         const entityNewsMap = {};
         for (const link of links) {
             const { entity_id, news_id } = link;
@@ -52,7 +45,6 @@ app.get('/posts', async (req, res) => {
             }
         }
 
-        // Объединяем сущности с их новостями
         const result = entities.map(entity => ({
             ...entity,
             link: entity.link ? entity.link.split(',').map(Number).filter(Boolean) : [],
