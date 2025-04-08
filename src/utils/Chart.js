@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { CustomTooltip } from './CustomTooltip';
 
-const Chart = ({ posts, spokenPosts, highlightedLines, favorites, onToggleFavorite }) => {
+const Chart = ({ posts, spokenPosts, highlightedLines, onShowDigest }) => {
     const [hoveredPostId, setHoveredPostId] = useState(null);
 
     const entityMap = useMemo(() => {
@@ -11,9 +11,9 @@ const Chart = ({ posts, spokenPosts, highlightedLines, favorites, onToggleFavori
         }
         return posts.map(entity => ({
             ...entity,
-            isFavorite: favorites.some(favEntity => favEntity.id === entity.id),
+            isFavorite: false,
         }));
-    }, [posts, favorites]);
+    }, [posts]);
 
     const lines = useMemo(() => {
         return entityMap.reduce((acc, entity) => {
@@ -28,8 +28,6 @@ const Chart = ({ posts, spokenPosts, highlightedLines, favorites, onToggleFavori
         }, []);
     }, [entityMap]);
 
-    const lineColor = useMemo(() => `#${Math.floor(Math.random() * 0xFFFFFF).toString(16).padStart(6, '0')}`, []);
-
     return (
         <div className="w-full">
             <ResponsiveContainer width="100%" height={400}>
@@ -39,12 +37,14 @@ const Chart = ({ posts, spokenPosts, highlightedLines, favorites, onToggleFavori
                         dataKey="time"
                         type="number"
                         domain={['auto', 'auto']}
-                        tickFormatter={(time) =>
-                            `${new Date(time).toLocaleDateString()} ${new Date(time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
-                        }
+                        tickFormatter={(time) => {
+                            const date = new Date(time);
+                            return `${date.toLocaleDateString()} ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+                        }}
                         label={{ value: "Дата и Время", position: "insideBottom", offset: -5 }}
                         ticks={entityMap.map(entity => entity.time)}
                     />
+
                     <YAxis hide={true} />
                     <Tooltip content={<CustomTooltip />} />
 
@@ -61,7 +61,7 @@ const Chart = ({ posts, spokenPosts, highlightedLines, favorites, onToggleFavori
                                 type="monotone"
                                 data={lineData}
                                 dataKey="id"
-                                stroke={lineColor}
+                                stroke="#8884d8"
                                 strokeWidth={isHighlighted ? 4 : 2}
                                 dot={false}
                                 activeDot={false}
@@ -71,8 +71,6 @@ const Chart = ({ posts, spokenPosts, highlightedLines, favorites, onToggleFavori
                     })}
 
                     {entityMap.map((entity) => {
-                        const isFavorite = favorites.some(favEntity => favEntity.id === entity.id);
-
                         return (
                             <Line
                                 key={entity.id}
@@ -82,12 +80,12 @@ const Chart = ({ posts, spokenPosts, highlightedLines, favorites, onToggleFavori
                                 stroke="transparent"
                                 dot={{
                                     r: spokenPosts.has(entity.id) ? 10 : 5,
-                                    fill: isFavorite ? 'gold' : lineColor,
+                                    fill: "#8884d8",
                                     stroke: entity.id === hoveredPostId ? 'blue' : 'transparent',
                                     strokeWidth: 2,
                                     onMouseEnter: () => setHoveredPostId(entity.id),
                                     onMouseLeave: () => setHoveredPostId(null),
-                                    onClick: () => onToggleFavorite(entity),
+                                    onClick: () => onShowDigest(entity),
                                 }}
                                 activeDot={false}
                             />

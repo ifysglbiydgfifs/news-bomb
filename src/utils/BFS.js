@@ -3,7 +3,7 @@ let currentSpeech = null;
 export const speakPosts = async (posts, setSpokenPosts, setHighlightedLines, setIsSpeaking) => {
     console.log('speakPosts called');
 
-    const sortedPosts = [...posts].sort((a, b) => a.time - b.time); // Сортировка по времени
+    const sortedPosts = [...posts].sort((a, b) => a.time - b.time);
     const postMap = sortedPosts.reduce((map, post) => {
         map[post.id] = post;
         return map;
@@ -13,16 +13,14 @@ export const speakPosts = async (posts, setSpokenPosts, setHighlightedLines, set
     const queue = [];
 
     if (sortedPosts.length > 0) {
-        queue.push(sortedPosts[0]); // Начинаем с самого раннего поста
+        queue.push(sortedPosts[0]);
     }
 
     const speakPost = (post) => {
         return new Promise((resolve) => {
             console.log(`Speaking post: ${post.id}`);
 
-            // Сразу перед началом озвучивания выделяем точку
             setSpokenPosts(prev => new Set([...prev, post.id]));
-
             const speech = new SpeechSynthesisUtterance(`${post.title}.`);
             speech.lang = 'ru-RU';
 
@@ -46,7 +44,6 @@ export const speakPosts = async (posts, setSpokenPosts, setHighlightedLines, set
                 await speakPost(currentPost);
                 visited.add(currentPost.id);
 
-                // Добавляем в spokenPosts только после завершения озвучки
                 setSpokenPosts(prev => new Set([...prev, currentPost.id]));
 
                 currentPost.link.forEach((targetId) => {
@@ -92,7 +89,6 @@ export const highlightConnections = (posts, spokenPosts) => {
         if (Array.isArray(fromPost.link)) {
             fromPost.link.forEach((targetId) => {
                 const toPost = posts.find((post) => post.id === targetId);
-                // Теперь подсвечиваем только если оба поста озвучены
                 if (spokenPosts.has(fromPost.id) && spokenPosts.has(toPost.id)) {
                     highlightedLines.add(`${fromPost.id}-${toPost.id}`);
                 }

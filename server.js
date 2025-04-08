@@ -24,6 +24,7 @@ app.get('/posts', async (req, res) => {
             acc[entity.id] = {
                 name: entity.name,
                 links: links,
+                type: entity.type,
             };
             return acc;
         }, {});
@@ -37,6 +38,7 @@ app.get('/posts', async (req, res) => {
                 title: entityInfo.name || news.title,
                 time: parseInt(news.time),
                 link: link,
+                type: entityInfo.type || 'Unknown',
             };
         });
         res.json(postMap);

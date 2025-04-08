@@ -84,6 +84,10 @@ const Home = () => {
         setHighlightedLines(highlighted);
     }, [spokenPosts, filteredPosts]);
 
+    const handleShowDigest = (post) => {
+        alert(`Showing digest for post: ${post.title}`);
+    };
+
     return (
         <div className="min-h-screen bg-gray-100 flex flex-col justify-center items-center p-4">
             <Chart
