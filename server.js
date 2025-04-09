@@ -1,40 +1,41 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const { Pool } = require('pg');
 
 const app = express();
-const port = 3001;
+const port = process.env.PORT || 3001;
 
 app.use(cors());
 app.use(express.json());
 
 const pool = new Pool({
-    user: 'postgres',
-    host: 'localhost',
-    database: 'DigestBot',
-    password: '123',
-    port: 5432,
+    connectionString: process.env.DATABASE_URL,
+    ssl: {
+        rejectUnauthorized: false,
+    }
 });
+
 
 app.get('/posts', async (req, res) => {
     try {
-        const clusterId = req.query.clusterId;
+        const { clusterId, telegramId } = req.query;
 
-        let entityQuery = 'SELECT * FROM entities';
-        const queryParams = [];
+        let entityQuery = 'SELECT * FROM entities WHERE telegram_id = $1';
+        const queryParams = [telegramId];
 
         if (clusterId && clusterId !== 'all') {
-            entityQuery += ' WHERE cluster_id = $1';
+            entityQuery += ' AND cluster_id = $2';
             queryParams.push(Number(clusterId));
         }
 
         const entitiesResult = await pool.query(entityQuery, queryParams);
         const entities = entitiesResult.rows;
 
-        const linksResult = await pool.query('SELECT * FROM news_entity_links');
+        const linksResult = await pool.query('SELECT * FROM news_entity_links WHERE telegram_id = $1', [telegramId]);
         const links = linksResult.rows;
 
-        const newsResult = await pool.query('SELECT * FROM news');
+        const newsResult = await pool.query('SELECT * FROM news WHERE telegram_id = $1', [telegramId]);
         const news = newsResult.rows;
 
         const newsMap = new Map();
@@ -71,7 +72,9 @@ app.get('/posts', async (req, res) => {
 
 app.get('/digest', async (req, res) => {
     try {
-        const result = await pool.query('SELECT * FROM digests');
+        const { telegramId } = req.query;
+        const result = await pool.query('SELECT * FROM digests WHERE telegram_id = $1', [telegramId]);
+
         if (result.rows.length > 0) {
             res.json(result.rows);
         } else {
@@ -85,5 +88,5 @@ app.get('/digest', async (req, res) => {
 });
 
 app.listen(port, () => {
-    console.log(`Server listening on http://localhost:${port}`);
+    console.log(`✅ Server listening on http://localhost:${port}`);
 });

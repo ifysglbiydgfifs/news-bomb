@@ -39,7 +39,9 @@ const Home = () => {
     }, []);
 
     useEffect(() => {
-        const clusterParam = selectedClusterId !== 'all' ? `?clusterId=${selectedClusterId}` : '';
+        const telegramId = 559634936;
+        const clusterParam = selectedClusterId !== 'all' ? `?clusterId=${selectedClusterId}&telegramId=${telegramId}` : `?telegramId=${telegramId}`;
+
         fetch(`http://localhost:3001/posts${clusterParam}`)
             .then((res) => res.json())
             .then((data) => {
@@ -58,7 +60,8 @@ const Home = () => {
     }, [selectedClusterId]);
 
     const handleShowDigest = (post) => {
-        fetch(`http://localhost:3001/digest`)
+        const telegramId = 559634936;
+        fetch(`http://localhost:3001/digest?telegramId=${telegramId}`)
             .then((res) => res.json())
             .then((data) => {
                 const digest = data.find(d => d.type === post.type);
