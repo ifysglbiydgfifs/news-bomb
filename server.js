@@ -18,7 +18,17 @@ const pool = new Pool({
 
 app.get('/posts', async (req, res) => {
     try {
-        const entitiesResult = await pool.query('SELECT * FROM entities');
+        const clusterId = req.query.clusterId;
+
+        let entityQuery = 'SELECT * FROM entities';
+        const queryParams = [];
+
+        if (clusterId && clusterId !== 'all') {
+            entityQuery += ' WHERE cluster_id = $1';
+            queryParams.push(Number(clusterId));
+        }
+
+        const entitiesResult = await pool.query(entityQuery, queryParams);
         const entities = entitiesResult.rows;
 
         const linksResult = await pool.query('SELECT * FROM news_entity_links');
@@ -48,6 +58,7 @@ app.get('/posts', async (req, res) => {
         const result = entities.map(entity => ({
             ...entity,
             link: entity.link ? entity.link.split(',').map(Number).filter(Boolean) : [],
+            time: Number(entity.time),
             news: entityNewsMap[entity.id] || [],
         }));
 

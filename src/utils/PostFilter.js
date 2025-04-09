@@ -30,6 +30,18 @@ class PostFilter {
         result = this.filterByType(result, type);
         return result;
     }
+    static filterByCluster(posts, clusterId) {
+        if (clusterId === '' || clusterId === null || clusterId === undefined) return posts;
+        return posts.filter(post => post.cluster_id === clusterId);
+    }
+
+    static applyFilters(posts, query, start, end, type, clusterId) {
+        let result = this.filterBySearch(posts, query);
+        result = this.filterByDate(result, start, end);
+        result = this.filterByType(result, type);
+        result = this.filterByCluster(result, clusterId);
+        return result;
+    }
 }
 
 export default PostFilter;

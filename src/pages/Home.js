@@ -17,30 +17,45 @@ const Home = () => {
     const [favorites, setFavorites] = useState([]);
     const [isSpeaking, setIsSpeaking] = useState(false);
     const [isPaused, setIsPaused] = useState(false);
-
+    const [selectedClusterId, setSelectedClusterId] = useState('all');
+    const [allClusters, setAllClusters] = useState([]);
 
     useEffect(() => {
-        fetch('http://localhost:3001/posts')
+        fetch(`http://localhost:3001/posts`)
             .then((res) => res.json())
             .then((data) => {
-                const formatted = data.map((post) => {
-                    const minTime = post.news?.length
-                        ? Math.min(...post.news.map(n => n.time))
-                        : Date.now();
-                    return {
-                        ...post,
-                        time: minTime,
-                        link: Array.isArray(post.link) ? post.link : [],
-                        visualId: uuidv4(),
-                        x: minTime,
-                        y: Math.random() * 100,
-                    };
-                });
+                const formatted = data.map((post) => ({
+                    ...post,
+                    cluster_id: post.cluster_id ?? null,
+                    link: Array.isArray(post.link) ? post.link : [],
+                    visualId: uuidv4(),
+                    x: post.time,
+                    y: Math.random() * 100,
+                }));
+                const uniqueClusters = [...new Set(formatted.map(p => p.cluster_id))];
+                setAllClusters(uniqueClusters);
+            })
+            .catch(console.error);
+    }, []);
+
+    useEffect(() => {
+        const clusterParam = selectedClusterId !== 'all' ? `?clusterId=${selectedClusterId}` : '';
+        fetch(`http://localhost:3001/posts${clusterParam}`)
+            .then((res) => res.json())
+            .then((data) => {
+                const formatted = data.map((post) => ({
+                    ...post,
+                    cluster_id: post.cluster_id ?? null,
+                    link: Array.isArray(post.link) ? post.link : [],
+                    visualId: uuidv4(),
+                    x: post.time,
+                    y: Math.random() * 100,
+                }));
                 setPosts(formatted);
                 setFilteredPosts(formatted);
             })
             .catch(console.error);
-    }, []);
+    }, [selectedClusterId]);
 
     const handleShowDigest = (post) => {
         fetch(`http://localhost:3001/digest`)
@@ -79,14 +94,10 @@ const Home = () => {
         setDigestPost(null);
     };
 
-    useEffect(() => {
-        window.speechSynthesis.getVoices();
-    }, []);
-
-
     const handleSpeak = () => {
         if (!digestPost) return;
         SpeakingService.speakDigest(digestPost);
+        setIsSpeaking(true);
     };
 
     const handlePause = () => {
@@ -105,6 +116,9 @@ const Home = () => {
         setIsPaused(false);
     };
 
+    const handleClusterChange = (clusterId) => {
+        setSelectedClusterId(clusterId);
+    };
 
     return (
         <div className="min-h-screen bg-gray-100 flex flex-col justify-center items-center p-4">
@@ -124,6 +138,9 @@ const Home = () => {
                 handleTypeChange={handleTypeChange}
                 allTypes={[...new Set(posts.map(p => p.type))]}
                 selectedType={selectedType}
+                selectedClusterId={selectedClusterId}
+                onClusterChange={handleClusterChange}
+                allClusters={allClusters}
             />
             {digestPost && (
                 <DigestPopup

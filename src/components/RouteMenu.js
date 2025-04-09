@@ -11,6 +11,10 @@ const RouteMenu = ({
                        handleTypeChange,
                        allTypes,
                        selectedType,
+                       allClusters,
+                       selectedClusterId,
+                       handleClusterChange,
+                       onClusterChange,
                    }) => {
     return (
         <div className="fixed bottom-24 left-1/2 transform -translate-x-1/2 bg-white p-2 border-t shadow-lg rounded-lg">
@@ -45,6 +49,19 @@ const RouteMenu = ({
                             <option key={idx} value={type}>{type}</option>
                         ))}
                     </select>
+                    <select
+                        value={selectedClusterId}
+                        onChange={(e) => onClusterChange(e.target.value)}
+                        className="p-1.5 border rounded-lg w-auto sm:w-40 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                    >
+                        <option value="all">Все</option>
+                        {allClusters.map((id) => (
+                            <option key={id} value={id}>
+                            {id === -1 ? 'Без кластера' : `Кластер ${id}`}
+                            </option>
+                        ))}
+                    </select>
+
                     <button
                         onClick={handleFilter}
                         className="p-1.5 bg-blue-500 text-white rounded-lg w-auto sm:w-auto hover:bg-blue-400 transition duration-300 text-sm"
